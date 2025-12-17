@@ -1,0 +1,43 @@
+.home-layout {
+  min-height: 100vh;
+  background: var(--app-bg);
+}
+
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  padding: 0 2rem;
+  min-height: 60px;
+}
+
+.home-header-space {
+  min-height: 60px;
+}
+
+.home-header-title {
+  margin: 0;
+  line-height: 1.2;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.home-main {
+  background: var(--app-bg);
+}
+
+.home-sider {
+  width: 240px;
+  background: #f7f8f9;
+  box-shadow: 2px 0 10px rgba(15, 23, 42, 0.15);
+}
+
+.home-content {
+  padding: 2rem;
+  background: #fff;
+  border-radius: 16px;
+  margin: 2rem;
+  box-shadow: 0 20px 70px rgba(15, 23, 42, 0.08);
+}

@@ -1,0 +1,71 @@
+@font-face {
+  font-family: "Inter";
+  font-weight: 300 900;
+  font-style: normal;
+}
+
+:root {
+  --app-bg: #f5f6fb;
+  --app-text: #0f172a;
+  --app-text-muted: #4c5564;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+  background-color: var(--app-bg);
+  color: var(--app-text);
+}
+
+#root {
+  min-height: 100vh;
+  background-color: var(--app-bg);
+}
+
+.custom-menu {
+  background: #f7f8f9;
+  color: #0c0c0c;
+  border-right: none;
+}
+
+.custom-menu .ant-menu-item,
+.custom-menu .ant-menu-item a {
+  color: #0c0c0c;
+}
+
+.custom-menu .ant-menu-item:hover {
+  background: #f0f4ff;
+  color: #0c0c0c;
+}
+
+.custom-menu .ant-menu-item-selected {
+  background: #e6f4ff !important;
+  color: #1677ff !important;
+}
+
+.custom-menu .ant-menu-item-selected .anticon {
+  color: #1677ff;
+}
+
+.custom-menu .ant-menu-inline .ant-menu-item {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+.custom-menu .ant-menu-item:not(.ant-menu-item-selected):hover {
+  background: rgba(0, 0, 0, 0.06) !important;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  color: #0c0c0c !important;
+}
+
+.logout-button {
+  transition: color 0.15s ease;
+}
+
+.logout-button:hover {
+  color: #ff7875 !important;
+  background: #fff2f0 !important;
+}

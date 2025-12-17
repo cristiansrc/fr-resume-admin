@@ -8,8 +8,8 @@ import routerProvider, {
   DocumentTitleHandler,
   UnsavedChangesNotifier,
 } from "@refinedev/react-router";
-import dataProvider, { fetchUtils } from "@refinedev/simple-rest";
-import { App as AntdApp } from "antd";
+import dataProvider from "@refinedev/simple-rest";
+import { App as AntdApp, ConfigProvider } from "antd";
 import {
   BrowserRouter,
   Navigate,
@@ -22,6 +22,11 @@ import { authProvider, TOKEN_KEY } from "./providers/authProvider";
 import { ColorModeContextProvider } from "./contexts/color-mode";
 import { Home } from "./pages/home";
 import { Login } from "./pages/login";
+import dayjs from "dayjs";
+import "dayjs/locale/es";
+import esES from "antd/locale/es_ES";
+
+dayjs.locale("es");
 
 const API_URL = import.meta.env.VITE_API_URL ?? "";
 
@@ -61,36 +66,38 @@ function App() {
       <RefineKbarProvider>
         <ColorModeContextProvider>
           <AntdApp>
-            <DevtoolsProvider>
-              <Refine
-                dataProvider={apiDataProvider}
-                notificationProvider={useNotificationProvider}
-                routerProvider={routerProvider}
-                authProvider={authProvider}
-                options={{
-                  syncWithLocation: true,
-                  warnWhenUnsavedChanges: true,
-                  projectId: "epAGNA-oqPpfF-voMWX5",
-                }}
-              >
-                <Routes>
-                  <Route path="/login" element={<Login />} />
-                  <Route
-                    path="/"
-                    element={
-                      <ProtectedRoute>
-                        <Home />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-                <RefineKbar />
-                <UnsavedChangesNotifier />
-                <DocumentTitleHandler />
-              </Refine>
-              <DevtoolsPanel />
-            </DevtoolsProvider>
+            <ConfigProvider locale={esES}>
+              <DevtoolsProvider>
+                <Refine
+                  dataProvider={apiDataProvider}
+                  notificationProvider={useNotificationProvider}
+                  routerProvider={routerProvider}
+                  authProvider={authProvider}
+                  options={{
+                    syncWithLocation: true,
+                    warnWhenUnsavedChanges: true,
+                    projectId: "epAGNA-oqPpfF-voMWX5",
+                  }}
+                >
+                  <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route
+                      path="/"
+                      element={
+                        <ProtectedRoute>
+                          <Home />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                  <RefineKbar />
+                  <UnsavedChangesNotifier />
+                  <DocumentTitleHandler />
+                </Refine>
+                <DevtoolsPanel />
+              </DevtoolsProvider>
+            </ConfigProvider>
           </AntdApp>
         </ColorModeContextProvider>
       </RefineKbarProvider>

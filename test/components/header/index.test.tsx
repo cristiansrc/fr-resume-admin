@@ -6,9 +6,10 @@ import { Header } from "../../../src/components/header";
 import { ColorModeContext } from "../../../src/contexts/color-mode";
 
 const setModeMock = vi.fn();
+const useGetIdentityMock = vi.fn();
 
 vi.mock("@refinedev/core", () => ({
-  useGetIdentity: () => ({ data: { name: "Test User", avatar: "url" } }),
+  useGetIdentity: () => useGetIdentityMock(),
 }));
 
 vi.mock("antd", async () => {
@@ -25,6 +26,10 @@ vi.mock("antd", async () => {
 describe("Header component", () => {
   beforeEach(() => {
     setModeMock.mockReset();
+    useGetIdentityMock.mockReset();
+    useGetIdentityMock.mockReturnValue({
+      data: { name: "Test User", avatar: "url" },
+    });
   });
 
   it("renders user identity and toggles color mode", async () => {
@@ -62,5 +67,34 @@ describe("Header component", () => {
     const header = container.querySelector(".ant-layout-header");
     expect(header).toBeInTheDocument();
     expect(header).not.toHaveStyle("position: sticky");
+  });
+
+  it("toggles color mode back to light when already dark", async () => {
+    const user = userEvent.setup();
+    useGetIdentityMock.mockReturnValue({
+      data: { name: "Another", avatar: "another-url" },
+    });
+
+    render(
+      <ColorModeContext.Provider value={{ mode: "dark", setMode: setModeMock }}>
+        <Header />
+      </ColorModeContext.Provider>,
+    );
+
+    await user.click(screen.getByRole("switch"));
+    expect(setModeMock).toHaveBeenCalledWith("light");
+  });
+
+  it("does not render identity info when missing", () => {
+    useGetIdentityMock.mockReturnValue({ data: undefined });
+
+    const { container } = render(
+      <ColorModeContext.Provider value={{ mode: "light", setMode: setModeMock }}>
+        <Header />
+      </ColorModeContext.Provider>,
+    );
+
+    expect(container.querySelector(".ant-typography")).toBeNull();
+    expect(container.querySelector(".ant-avatar")).toBeNull();
   });
 });

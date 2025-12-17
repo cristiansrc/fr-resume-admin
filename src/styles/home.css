@@ -41,3 +41,36 @@
   margin: 2rem;
   box-shadow: 0 20px 70px rgba(15, 23, 42, 0.08);
 }
+
+.basic-data-panel {
+  width: 100%;
+  position: relative;
+}
+
+.basic-data-busy-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  pointer-events: all;
+  z-index: 10;
+}
+
+.basic-data-panel .basic-data-form {
+  margin-top: 1.5rem;
+}
+
+.basic-data-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.basic-data-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.25rem;
+}

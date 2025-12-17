@@ -1,10 +1,4 @@
-import {
-  FileTextOutlined,
-  HomeOutlined,
-  LogoutOutlined,
-  SettingOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
+import { FileTextOutlined, LogoutOutlined } from "@ant-design/icons";
 import {
   Avatar,
   Button,
@@ -16,36 +10,33 @@ import {
   Typography,
 } from "antd";
 import { useLogout } from "@refinedev/core";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import "../../styles/home.css";
+import { BasicDataForm } from "./BasicDataForm";
 
 const { Header, Sider, Content } = Layout;
 
+const MENU_KEYS = {
+  BASIC_DATA: "basic-data",
+  OTHER: "other",
+};
+
 const MENU_ITEMS = [
   {
-    key: "dashboard",
-    label: "Dashboard",
-    icon: <HomeOutlined />,
-  },
-  {
-    key: "experiences",
-    label: "Experiencias",
+    key: MENU_KEYS.BASIC_DATA,
+    label: "Datos Básicos",
     icon: <FileTextOutlined />,
   },
   {
-    key: "skills",
-    label: "Habilidades",
-    icon: <SettingOutlined />,
-  },
-  {
-    key: "profile",
-    label: "Perfil",
-    icon: <UserOutlined />,
+    key: MENU_KEYS.OTHER,
+    label: "Otra sección",
+    icon: <FileTextOutlined />,
   },
 ];
 
 export const Home = () => {
   const { mutate: logout, isLoading: isLogoutLoading } = useLogout();
+  const [activeMenuKey, setActiveMenuKey] = useState(MENU_KEYS.BASIC_DATA);
 
   const dropdownContent = useMemo(
     () => (
@@ -119,26 +110,26 @@ export const Home = () => {
           />
         </Dropdown>
       </Header>
-      <Layout className="home-main">
-        <Sider className="home-sider">
+        <Layout className="home-main">
+          <Sider className="home-sider">
             <Menu
               mode="inline"
               theme="light"
               items={MENU_ITEMS}
               className="custom-menu"
-              defaultSelectedKeys={["dashboard"]}
+              selectedKeys={[activeMenuKey]}
+              onSelect={({ key }) => setActiveMenuKey(key)}
               inlineIndent={24}
             />
           </Sider>
-        <Content className="home-content">
-          <Typography.Title level={3}>Bienvenido</Typography.Title>
-          <Typography.Paragraph>
-            Esta vista servirá como punto de entrada para administrar tu hoja de
-            vida, los componentes de Refine están listos para integrar formularios,
-            tablas y más.
-          </Typography.Paragraph>
-        </Content>
-      </Layout>
+          <Content className="home-content">
+            {activeMenuKey === MENU_KEYS.BASIC_DATA ? (
+              <BasicDataForm />
+            ) : (
+              <Typography.Text>Contenido de la sección alternativa</Typography.Text>
+            )}
+          </Content>
+        </Layout>
     </Layout>
   );
 };

@@ -80,4 +80,20 @@ describe("Login page", () => {
     render(<Login />);
     expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });
+
+  it("shows an error alert when login fails with a string error", () => {
+    const errorMessage = "Credenciales inválidas";
+    (refineCore.useLogin as unknown as vi.Mock).mockReturnValue({
+      mutate: mutateMock,
+      isLoading: false,
+      error: errorMessage,
+    });
+    (refineCore.useIsAuthenticated as unknown as vi.Mock).mockReturnValue({
+      data: { authenticated: false },
+      isLoading: false,
+    });
+
+    render(<Login />);
+    expect(screen.getByText(errorMessage)).toBeInTheDocument();
+  });
 });

@@ -9,6 +9,9 @@ import { MemoryRouter } from "react-router-dom";
 
 vi.mock("@refinedev/core");
 vi.mock("../../../src/providers/basicDataProvider");
+vi.mock("../../../src/pages/label/LabelPage", () => ({
+  LabelPage: () => <div data-testid="label-page" />,
+}));
 
 const logoutMutation = vi.fn();
 
@@ -134,5 +137,18 @@ describe("Home page", () => {
     expect(
       await screen.findByRole("heading", { name: /datos básicos/i }),
     ).toBeInTheDocument();
+  });
+
+  it("renders the label page when the label menu option is selected", async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter>
+        <Home />
+      </MemoryRouter>,
+    );
+
+    await user.click(screen.getByRole("menuitem", { name: /labels/i }));
+
+    expect(await screen.findByTestId("label-page")).toBeInTheDocument();
   });
 });

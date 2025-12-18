@@ -1,4 +1,9 @@
-import { FileTextOutlined, LogoutOutlined } from "@ant-design/icons";
+import {
+  FileTextOutlined,
+  LogoutOutlined,
+  TagOutlined,
+  VideoCameraOutlined,
+} from "@ant-design/icons";
 import {
   Avatar,
   Button,
@@ -13,11 +18,15 @@ import { useLogout } from "@refinedev/core";
 import { useMemo, useState } from "react";
 import "../../styles/home.css";
 import { BasicDataForm } from "./BasicDataForm";
+import { LabelPage } from "../label/LabelPage";
+import { VideoPage } from "../video/VideoPage";
 
 const { Header, Sider, Content } = Layout;
 
 const MENU_KEYS = {
   BASIC_DATA: "basic-data",
+  LABEL: "label",
+  VIDEO: "video",
   OTHER: "other",
 };
 
@@ -26,6 +35,16 @@ const MENU_ITEMS = [
     key: MENU_KEYS.BASIC_DATA,
     label: "Datos Básicos",
     icon: <FileTextOutlined />,
+  },
+  {
+    key: MENU_KEYS.LABEL,
+    label: "Labels",
+    icon: <TagOutlined />,
+  },
+  {
+    key: MENU_KEYS.VIDEO,
+    label: "Videos",
+    icon: <VideoCameraOutlined />,
   },
   {
     key: MENU_KEYS.OTHER,
@@ -110,26 +129,30 @@ export const Home = () => {
           />
         </Dropdown>
       </Header>
-        <Layout className="home-main">
-          <Sider className="home-sider">
-            <Menu
-              mode="inline"
-              theme="light"
-              items={MENU_ITEMS}
-              className="custom-menu"
-              selectedKeys={[activeMenuKey]}
-              onSelect={({ key }) => setActiveMenuKey(key)}
-              inlineIndent={24}
-            />
-          </Sider>
-          <Content className="home-content">
-            {activeMenuKey === MENU_KEYS.BASIC_DATA ? (
-              <BasicDataForm />
-            ) : (
-              <Typography.Text>Contenido de la sección alternativa</Typography.Text>
-            )}
-          </Content>
-        </Layout>
+      <Layout className="home-main">
+        <Sider className="home-sider">
+          <Menu
+            mode="inline"
+            theme="light"
+            items={MENU_ITEMS}
+            className="custom-menu"
+            selectedKeys={[activeMenuKey]}
+            onSelect={({ key }) => setActiveMenuKey(key)}
+            inlineIndent={24}
+          />
+        </Sider>
+        <Content className="home-content">
+          {activeMenuKey === MENU_KEYS.BASIC_DATA ? (
+            <BasicDataForm />
+          ) : activeMenuKey === MENU_KEYS.LABEL ? (
+            <LabelPage />
+          ) : activeMenuKey === MENU_KEYS.VIDEO ? (
+            <VideoPage />
+          ) : (
+            <Typography.Text>Contenido de la sección alternativa</Typography.Text>
+          )}
+        </Content>
+      </Layout>
     </Layout>
   );
 };

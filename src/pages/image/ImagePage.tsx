@@ -10,42 +10,50 @@ import {
   Spin,
   Table,
   Typography,
+  Upload,
 } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import type { RcFile, UploadFile } from "antd/es/upload/interface";
+import { UploadOutlined, PlusOutlined } from "@ant-design/icons";
 import { useNotification } from "@refinedev/core";
 import { useTable } from "@refinedev/antd";
 import { useCallback, useMemo, useState } from "react";
-import { VIDEO_RESOURCE } from "../../config/video-config";
+import { IMAGE_RESOURCE } from "../../config/image-config";
 import {
-  createVideo,
-  deleteVideo,
-  type VideoPayload,
-  type VideoResponse,
-} from "../../providers/videoProvider";
+  createImage,
+  deleteImage,
+  type ImagePayload,
+  type ImageResponse,
+} from "../../providers/imageProvider";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
-const YOUTUBE_ID_PATTERN =
-  /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|v\/))([A-Za-z0-9_-]{11})/;
+interface ImageFormValues {
+  name: string;
+  nameEng: string;
+}
 
-const getYoutubeVideoId = (url: string) => {
-  const match = url.match(YOUTUBE_ID_PATTERN);
-  return match?.[1];
-};
+const toBase64 = (file: RcFile): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+        return;
+      }
+      reject(new Error("Formato no soportado"));
+    };
+    reader.onerror = () => reject(new Error("No se pudo leer el archivo"));
+  });
 
-const getYoutubePreviewUrl = (url: string) => {
-  const videoId = getYoutubeVideoId(url);
-  return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : undefined;
-};
-
-interface VideoFormValues extends VideoPayload {}
-
-export const VideoPage = () => {
-  const [form] = Form.useForm<VideoFormValues>();
+export const ImagePage = () => {
+  const [form] = Form.useForm<ImageFormValues>();
   const { open } = useNotification();
   const [isModalOpen, setModalOpen] = useState(false);
   const [isBusy, setBusy] = useState(false);
   const [isSaving, setSaving] = useState(false);
+  const [fileBase64, setFileBase64] = useState<string>();
+  const [fileList, setFileList] = useState<UploadFile<RcFile>[]>([]);
 
   const notifyError = useCallback(
     (errorMessage: string) => {
@@ -63,22 +71,22 @@ export const VideoPage = () => {
     [open],
   );
 
-  const { tableProps, tableQuery } = useTable<VideoResponse>({
-    resource: VIDEO_RESOURCE,
+  const { tableProps, tableQuery } = useTable<ImageResponse>({
+    resource: IMAGE_RESOURCE,
     pagination: {
       pageSize: 10,
     },
   });
 
   const handleDelete = useCallback(
-    async (videoId: number) => {
+    async (imageId: number) => {
       setBusy(true);
       try {
-        const { status } = await deleteVideo(videoId);
-        if (status === 204) {
+        const { status } = await deleteImage(imageId);
+        if (status === 200 || status === 201 || status === 204) {
           const successPayload = {
-            message: "Video eliminado",
-            description: "El video se eliminó correctamente.",
+            message: "Imagen eliminada",
+            description: "La imagen se eliminó correctamente.",
           };
           notification.success(successPayload);
           message.success(successPayload.description ?? successPayload.message);
@@ -92,7 +100,7 @@ export const VideoPage = () => {
 
         throw new Error("Respuesta inesperada");
       } catch {
-        notifyError("No se pudo eliminar el video");
+        notifyError("No se pudo eliminar la imagen");
       } finally {
         setBusy(false);
       }
@@ -101,15 +109,24 @@ export const VideoPage = () => {
   );
 
   const handleCreate = useCallback(
-    async (values: VideoFormValues) => {
+    async (values: ImageFormValues) => {
+      if (!fileBase64) {
+        message.error("Selecciona una imagen para continuar.");
+        return;
+      }
+
       setBusy(true);
       setSaving(true);
       try {
-        const { status } = await createVideo(values);
-        if (status === 201) {
+        const payload: ImagePayload = {
+          ...values,
+          file: fileBase64,
+        };
+        const { status } = await createImage(payload);
+        if (status === 200 || status === 201 || status === 204) {
           const successPayload = {
-            message: "Video creado",
-            description: "El video se creó correctamente.",
+            message: "Imagen guardada",
+            description: "La imagen se guardó correctamente.",
           };
           notification.success(successPayload);
           message.success(successPayload.description ?? successPayload.message);
@@ -119,20 +136,49 @@ export const VideoPage = () => {
           });
           setModalOpen(false);
           form.resetFields();
+          setFileList([]);
+          setFileBase64(undefined);
           await tableQuery.refetch();
           return;
         }
 
         throw new Error("Respuesta inesperada");
       } catch {
-        notifyError("No se pudo crear el video");
+        notifyError("No se pudo guardar la imagen");
       } finally {
         setBusy(false);
         setSaving(false);
       }
     },
-    [form, notifyError, open, tableQuery],
+    [fileBase64, form, notifyError, open, tableQuery],
   );
+
+  const handleBeforeUpload = useCallback(async (file: RcFile) => {
+    try {
+      const base64 = await toBase64(file);
+      setFileBase64(base64);
+      setFileList([
+        {
+          uid: file.uid,
+          name: file.name,
+          status: "done",
+          type: file.type,
+          size: file.size,
+        },
+      ]);
+    } catch (error) {
+      setFileBase64(undefined);
+      setFileList([]);
+      message.error("No se pudo procesar la imagen seleccionada.");
+    }
+    return false;
+  }, []);
+
+  const handleRemoveFile = useCallback(() => {
+    setFileBase64(undefined);
+    setFileList([]);
+    return true;
+  }, []);
 
   const columns = useMemo(
     () => [
@@ -149,26 +195,20 @@ export const VideoPage = () => {
         dataIndex: "nameEng",
       },
       {
-        title: "Previsualización",
-        dataIndex: "preview",
-        render: (_: unknown, record: VideoResponse) => {
-          const previewUrl = getYoutubePreviewUrl(record.url);
-          if (!previewUrl) {
-            return <Text type="secondary">URL inválida</Text>;
-          }
-          return (
-            <div className="video-preview">
-              <img src={previewUrl} alt={`${record.name} preview`} loading="lazy" />
-            </div>
-          );
-        },
+        title: "Vista previa",
+        dataIndex: "url",
+        render: (_: unknown, record: ImageResponse) => (
+          <div className="image-preview">
+            <img src={record.url} alt={`Vista previa ${record.name}`} loading="lazy" />
+          </div>
+        ),
       },
       {
         title: "Acciones",
         dataIndex: "actions",
-        render: (_: unknown, record: VideoResponse) => (
+        render: (_: unknown, record: ImageResponse) => (
           <Popconfirm
-            title={`¿Está seguro de eliminar el video con id ${record.id}?`}
+            title={`¿Está seguro de eliminar la imagen con id ${record.id}?`}
             onConfirm={() => handleDelete(record.id)}
             okText="Eliminar"
             cancelText="Cancelar"
@@ -192,27 +232,27 @@ export const VideoPage = () => {
   const isTableLoading = tableProps.loading;
 
   return (
-    <div className="video-panel">
-      <div className="video-header">
+    <div className="image-panel">
+      <div className="image-header">
         <Space size="middle" align="center">
-          <Title level={3}>Videos</Title>
+          <Title level={3}>Imágenes</Title>
         </Space>
         <Button
           type="primary"
           icon={<PlusOutlined />}
           onClick={() => setModalOpen(true)}
         >
-          Agregar video
+          Agregar Imagen
         </Button>
       </div>
       {isBusy && !isTableLoading && (
-        <div className="video-busy-overlay">
+        <div className="image-busy-overlay">
           <Spin tip="Procesando..." size="large" />
         </div>
       )}
       {isTableLoading ? (
-        <div className="video-loading">
-          <Spin tip="Cargando videos..." size="large" />
+        <div className="image-loading">
+          <Spin tip="Cargando imágenes..." size="large" />
         </div>
       ) : (
         <Table
@@ -224,8 +264,13 @@ export const VideoPage = () => {
       )}
       <Modal
         open={isModalOpen}
-        title="Agregar video"
-        onCancel={() => setModalOpen(false)}
+        title="Agregar Imagen"
+        onCancel={() => {
+          setModalOpen(false);
+          form.resetFields();
+          setFileList([]);
+          setFileBase64(undefined);
+        }}
         footer={null}
         destroyOnClose
       >
@@ -244,26 +289,20 @@ export const VideoPage = () => {
           >
             <Input placeholder="Name in English" />
           </Form.Item>
-          <Form.Item
-            label="URL del video"
-            name="url"
-            rules={[
-              { required: true, message: "Ingresa la URL del video" },
-              {
-                validator: (_, value) =>
-                  value && !getYoutubeVideoId(value)
-                    ? Promise.reject(
-                        new Error("Solo se permiten videos alojados en YouTube"),
-                      )
-                    : Promise.resolve(),
-              },
-            ]}
-          >
-            <Input placeholder="https://www.youtube.com/watch?v=XXXXXXXXXXX" />
+          <Form.Item label="Imagen" required>
+            <Upload
+              accept="image/*"
+              beforeUpload={handleBeforeUpload}
+              onRemove={handleRemoveFile}
+              fileList={fileList}
+              maxCount={1}
+            >
+              <Button icon={<UploadOutlined />}>Seleccionar imagen</Button>
+            </Upload>
           </Form.Item>
           <Form.Item className="basic-data-actions">
             <Button type="primary" htmlType="submit" loading={isSaving} block>
-              Guardar video
+              Guardar Imagen
             </Button>
           </Form.Item>
         </Form>

@@ -141,3 +141,42 @@
   height: 90px;
   object-fit: cover;
 }
+
+.image-panel {
+  width: 100%;
+  position: relative;
+}
+
+.image-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.image-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.image-busy-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  pointer-events: all;
+  z-index: 10;
+}
+
+.image-preview img {
+  max-height: 130px;
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
+  border-radius: 8px;
+  display: block;
+}

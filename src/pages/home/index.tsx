@@ -1,6 +1,7 @@
 import {
   FileTextOutlined,
   LogoutOutlined,
+  PictureOutlined,
   TagOutlined,
   VideoCameraOutlined,
 } from "@ant-design/icons";
@@ -18,6 +19,7 @@ import { useLogout } from "@refinedev/core";
 import { useMemo, useState } from "react";
 import "../../styles/home.css";
 import { BasicDataForm } from "./BasicDataForm";
+import { ImagePage } from "../image/ImagePage";
 import { LabelPage } from "../label/LabelPage";
 import { VideoPage } from "../video/VideoPage";
 
@@ -27,6 +29,7 @@ const MENU_KEYS = {
   BASIC_DATA: "basic-data",
   LABEL: "label",
   VIDEO: "video",
+  IMAGES: "images",
   OTHER: "other",
 };
 
@@ -45,6 +48,11 @@ const MENU_ITEMS = [
     key: MENU_KEYS.VIDEO,
     label: "Videos",
     icon: <VideoCameraOutlined />,
+  },
+  {
+    key: MENU_KEYS.IMAGES,
+    label: "Imágenes",
+    icon: <PictureOutlined />,
   },
   {
     key: MENU_KEYS.OTHER,
@@ -148,6 +156,8 @@ export const Home = () => {
             <LabelPage />
           ) : activeMenuKey === MENU_KEYS.VIDEO ? (
             <VideoPage />
+          ) : activeMenuKey === MENU_KEYS.IMAGES ? (
+            <ImagePage />
           ) : (
             <Typography.Text>Contenido de la sección alternativa</Typography.Text>
           )}

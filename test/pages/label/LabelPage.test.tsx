@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { act } from "react-dom/test-utils";
-import { message, notification } from "antd";
+import { act } from "react";
+import { message, notification, Modal } from "antd";
 
 import * as refineCore from "@refinedev/core";
 import { LabelPage } from "../../../src/pages/label/LabelPage";
@@ -19,6 +19,14 @@ const createLabelMock = labelProvider.createLabel as unknown as vi.Mock;
 const deleteLabelMock = labelProvider.deleteLabel as unknown as vi.Mock;
 const useTableMock = useTable as unknown as vi.Mock;
 const refetchMock = vi.fn();
+let lastModalConfirmConfig:
+  | Parameters<typeof Modal.confirm>[0]
+  | undefined;
+const modalConfirmSpy = vi
+  .spyOn(Modal, "confirm")
+  .mockImplementation((config) => {
+    lastModalConfirmConfig = config;
+  });
 
 const notificationSuccessSpy = vi
   .spyOn(notification, "success")
@@ -55,6 +63,7 @@ describe("LabelPage", () => {
     deleteLabelMock.mockReset();
     openNotificationMock.mockReset();
     refetchMock.mockReset();
+    lastModalConfirmConfig = undefined;
     useTableMock.mockReturnValue({
       tableProps: {
         dataSource: defaultLabels,
@@ -75,6 +84,7 @@ describe("LabelPage", () => {
     notificationErrorSpy.mockClear();
     messageSuccessSpy.mockClear();
     messageErrorSpy.mockClear();
+    modalConfirmSpy.mockClear();
 
     (refineCore.useNotification as unknown as vi.Mock).mockReturnValue({
       open: openNotificationMock,
@@ -119,6 +129,7 @@ describe("LabelPage", () => {
 
     await waitFor(() => expect(notificationSuccessSpy).toHaveBeenCalled());
     expect(messageSuccessSpy).toHaveBeenCalled();
+    expect(messageSuccessSpy).toHaveBeenCalledWith("El label se creó correctamente.");
     expect(openNotificationMock).toHaveBeenCalledWith(
       expect.objectContaining({ type: "success" }),
     );
@@ -149,6 +160,77 @@ describe("LabelPage", () => {
     expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 
+  it("notifies error when creating returns an unexpected status", async () => {
+    const user = userEvent.setup();
+    createLabelMock.mockResolvedValueOnce({
+      data: createdLabel,
+      status: 500,
+    });
+
+    render(<LabelPage />);
+
+    await user.click(screen.getByRole("button", { name: /agregar label/i }));
+    await user.type(screen.getByLabelText("Nombre"), "Etiqueta Inesperada");
+    await user.type(screen.getByLabelText("Nombre (inglés)"), "Unexpected Label");
+
+    const submitButton = screen.getByRole("button", { name: /guardar label/i });
+    await user.click(submitButton);
+
+    await waitFor(() => expect(notificationErrorSpy).toHaveBeenCalled());
+    expect(messageErrorSpy).toHaveBeenCalled();
+    expect(openNotificationMock).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "error" }),
+    );
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+  });
+
+  it("closes the creation modal when the close icon is clicked", async () => {
+    const user = userEvent.setup();
+    render(<LabelPage />);
+
+    await user.click(screen.getByRole("button", { name: /agregar label/i }));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+    await waitFor(() =>
+      expect(document.querySelector(".ant-modal-close")).toBeInTheDocument(),
+    );
+
+    const closeButton = document.querySelector(".ant-modal-close");
+    await user.click(closeButton as HTMLElement);
+
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
+  });
+
+  it("displays a table loader when the data is still loading", () => {
+    useTableMock.mockReturnValueOnce({
+      tableProps: {
+        dataSource: [],
+        loading: true,
+        pagination: false,
+      },
+      tableQuery: {
+        refetch: refetchMock,
+      },
+    });
+
+    render(<LabelPage />);
+
+    expect(document.querySelector(".label-loading")).toBeInTheDocument();
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+  });
+
+  it("shows the table once the labels are loaded", async () => {
+    render(<LabelPage />);
+
+    const table = await screen.findByRole("table");
+    expect(table).toBeInTheDocument();
+    expect(table).toContainElement(screen.getByText("Etiqueta 1"));
+
+    expect(screen.queryByText(/cargando etiquetas/i)).not.toBeInTheDocument();
+  });
+
   it("deletes a label and refreshes the list when confirmed", async () => {
     const user = userEvent.setup();
     let resolveDelete: ((value: { status: number }) => void) | undefined;
@@ -161,30 +243,31 @@ describe("LabelPage", () => {
 
     const { container } = render(<LabelPage />);
     await screen.findByText("Etiqueta 1");
-    const deleteButton = await screen.findByRole("button", { name: /eliminar/i });
+    await user.click(screen.getByRole("button", { name: /eliminar/i }));
 
-    try {
-      await user.click(deleteButton);
-      const confirmButton = await screen.findByTestId("confirm-delete-1");
-      await user.click(confirmButton);
+    expect(modalConfirmSpy).toHaveBeenCalledTimes(1);
+    const modalConfig = lastModalConfirmConfig;
+    expect(modalConfig).toBeDefined();
+    expect(modalConfig?.content).toContain("Etiqueta 1");
 
-      await waitFor(() =>
-        expect(container.querySelector(".label-busy-overlay")).toBeInTheDocument(),
-      );
+    const onOkPromise = modalConfig?.onOk?.() ?? Promise.resolve();
 
-      await act(async () => {
-        resolveDelete?.({ status: 204 });
-      });
+    await waitFor(() =>
+      expect(container.querySelector(".label-busy-overlay")).toBeInTheDocument(),
+    );
 
-      await waitFor(() => expect(notificationSuccessSpy).toHaveBeenCalled());
-      expect(messageSuccessSpy).toHaveBeenCalled();
-      expect(openNotificationMock).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "success" }),
-      );
-      await waitFor(() => expect(refetchMock).toHaveBeenCalledTimes(1));
-    } finally {
-      //
-    }
+    await act(async () => {
+      resolveDelete?.({ status: 204 });
+      await onOkPromise;
+    });
+
+    await waitFor(() => expect(notificationSuccessSpy).toHaveBeenCalled());
+    expect(messageSuccessSpy).toHaveBeenCalled();
+    expect(messageSuccessSpy).toHaveBeenCalledWith("El label se eliminó correctamente.");
+    expect(openNotificationMock).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "success" }),
+    );
+    await waitFor(() => expect(refetchMock).toHaveBeenCalledTimes(1));
   });
 
   it("shows an error notification when deletion fails", async () => {
@@ -195,19 +278,20 @@ describe("LabelPage", () => {
     await screen.findByText("Etiqueta 1");
     const deleteButton = await screen.findByRole("button", { name: /eliminar/i });
 
-    try {
-      await user.click(deleteButton);
-      const confirmButton = await screen.findByTestId("confirm-delete-1");
-      await user.click(confirmButton);
+    await user.click(deleteButton);
+    const modalConfig = lastModalConfirmConfig;
+    expect(modalConfig).toBeDefined();
 
-      await waitFor(() => expect(notificationErrorSpy).toHaveBeenCalled());
-      expect(messageErrorSpy).toHaveBeenCalled();
-      expect(openNotificationMock).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "error" }),
-      );
-      expect(refetchMock).not.toHaveBeenCalled();
-    } finally {
-      //
-    }
+    await act(async () => {
+      const onOkPromise = modalConfig?.onOk?.() ?? Promise.resolve();
+      await onOkPromise;
+    });
+
+    await waitFor(() => expect(notificationErrorSpy).toHaveBeenCalled());
+    expect(messageErrorSpy).toHaveBeenCalled();
+    expect(openNotificationMock).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "error" }),
+    );
+    expect(refetchMock).not.toHaveBeenCalled();
   });
 });

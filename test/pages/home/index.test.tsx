@@ -12,6 +12,12 @@ vi.mock("../../../src/providers/basicDataProvider");
 vi.mock("../../../src/pages/label/LabelPage", () => ({
   LabelPage: () => <div data-testid="label-page" />,
 }));
+vi.mock("../../../src/pages/video/VideoPage", () => ({
+  VideoPage: () => <div data-testid="video-page" />,
+}));
+vi.mock("../../../src/pages/image/ImagePage", () => ({
+  ImagePage: () => <div data-testid="image-page" />,
+}));
 
 const logoutMutation = vi.fn();
 
@@ -150,5 +156,31 @@ describe("Home page", () => {
     await user.click(screen.getByRole("menuitem", { name: /labels/i }));
 
     expect(await screen.findByTestId("label-page")).toBeInTheDocument();
+  });
+
+  it("renders the video page when the video menu option is selected", async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter>
+        <Home />
+      </MemoryRouter>,
+    );
+
+    await user.click(screen.getByRole("menuitem", { name: /videos/i }));
+
+    expect(await screen.findByTestId("video-page")).toBeInTheDocument();
+  });
+
+  it("renders the image page when the images menu option is selected", async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter>
+        <Home />
+      </MemoryRouter>,
+    );
+
+    await user.click(screen.getByRole("menuitem", { name: /imágenes/i }));
+
+    expect(await screen.findByTestId("image-page")).toBeInTheDocument();
   });
 });

@@ -5,7 +5,6 @@ import {
   message,
   Modal,
   notification,
-  Popconfirm,
   Space,
   Spin,
   Table,
@@ -156,21 +155,13 @@ export const LabelPage = () => {
         title: "Acciones",
         dataIndex: "actions",
         render: (_: unknown, record: LabelResponse) => (
-          <Popconfirm
-            title={`¿Está seguro de eliminar el Label con id ${record.id}?`}
-            onConfirm={() => handleDelete(record.id)}
-            okText="Eliminar"
-            cancelText="Cancelar"
-            okButtonProps={{
-              loading: isBusy,
-              "data-testid": `confirm-delete-${record.id}`,
-            }}
-            placement="topRight"
+          <Button
+            danger
+            type="link"
+            onClick={() => showDeleteConfirm(record)}
           >
-            <Button danger type="link">
-              Eliminar
-            </Button>
-          </Popconfirm>
+            Eliminar
+          </Button>
         ),
       },
     ],

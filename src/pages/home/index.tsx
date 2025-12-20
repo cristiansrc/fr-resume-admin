@@ -15,23 +15,15 @@ import {
   Space,
   Typography,
 } from "antd";
-import { useLogout } from "@refinedev/core";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import "../../styles/home.css";
 import { BasicDataForm } from "./BasicDataForm";
 import { ImagePage } from "../image/ImagePage";
 import { LabelPage } from "../label/LabelPage";
 import { VideoPage } from "../video/VideoPage";
+import { MENU_KEYS, useHomePage } from "../../hooks/home/useHomePage";
 
 const { Header, Sider, Content } = Layout;
-
-const MENU_KEYS = {
-  BASIC_DATA: "basic-data",
-  LABEL: "label",
-  VIDEO: "video",
-  IMAGES: "images",
-  OTHER: "other",
-};
 
 const MENU_ITEMS = [
   {
@@ -62,24 +54,15 @@ const MENU_ITEMS = [
 ];
 
 export const Home = () => {
-  const { mutate: logout, isLoading: isLogoutLoading } = useLogout();
-  const [activeMenuKey, setActiveMenuKey] = useState(MENU_KEYS.BASIC_DATA);
+  const { logout, isLogoutLoading, activeMenuKey, setActiveMenuKey } = useHomePage();
 
   const dropdownContent = useMemo(
     () => (
-      <div
-        style={{
-          minWidth: 200,
-          display: "flex",
-          flexDirection: "column",
-          background: "#fff",
-          borderRadius: 8,
-        }}
-      >
-        <div style={{ padding: "1rem" }}>
+      <div className="home-user-dropdown-content">
+        <div className="home-user-dropdown-name">
           <Typography.Text strong>Cristhiam Reina</Typography.Text>
         </div>
-        <Divider style={{ margin: 0 }} />
+        <Divider className="home-user-dropdown-divider" />
         <Button
           type="text"
           danger
@@ -87,12 +70,6 @@ export const Home = () => {
           block
           loading={isLogoutLoading}
           onClick={() => logout()}
-          style={{
-            textAlign: "left",
-            padding: "0.75rem 1rem",
-            borderRadius: 0,
-            color: "#f64d4f",
-          }}
           className="logout-button"
         >
           Salir
@@ -126,13 +103,13 @@ export const Home = () => {
             offset: [0, 8],
             overflow: { adjustX: 0, adjustY: 1 },
           }}
-          overlayStyle={{ marginRight: 2 }}
+          overlayClassName="home-user-dropdown-overlay"
           arrow
         >
           <Avatar
             size={40}
             src="https://i.pravatar.cc/150?img=3"
-            style={{ cursor: "pointer" }}
+            className="home-user-avatar"
             aria-label="Abrir menú de usuario"
           />
         </Dropdown>

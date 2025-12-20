@@ -2,14 +2,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { act } from "react";
-import { message, notification, Modal } from "antd";
+import { message, notification } from "antd";
 
 import * as refineCore from "@refinedev/core";
 import { LabelPage } from "../../../src/pages/label/LabelPage";
-import * as labelProvider from "../../../src/providers/labelProvider";
+import * as labelProvider from "../../../src/api/labelProvider";
 import { useTable } from "@refinedev/antd";
 
-vi.mock("../../../src/providers/labelProvider");
+vi.mock("../../../src/api/labelProvider");
 vi.mock("@refinedev/core");
 vi.mock("@refinedev/antd", () => ({
   useTable: vi.fn(),
@@ -19,14 +19,6 @@ const createLabelMock = labelProvider.createLabel as unknown as vi.Mock;
 const deleteLabelMock = labelProvider.deleteLabel as unknown as vi.Mock;
 const useTableMock = useTable as unknown as vi.Mock;
 const refetchMock = vi.fn();
-let lastModalConfirmConfig:
-  | Parameters<typeof Modal.confirm>[0]
-  | undefined;
-const modalConfirmSpy = vi
-  .spyOn(Modal, "confirm")
-  .mockImplementation((config) => {
-    lastModalConfirmConfig = config;
-  });
 
 const notificationSuccessSpy = vi
   .spyOn(notification, "success")
@@ -63,7 +55,6 @@ describe("LabelPage", () => {
     deleteLabelMock.mockReset();
     openNotificationMock.mockReset();
     refetchMock.mockReset();
-    lastModalConfirmConfig = undefined;
     useTableMock.mockReturnValue({
       tableProps: {
         dataSource: defaultLabels,
@@ -84,7 +75,6 @@ describe("LabelPage", () => {
     notificationErrorSpy.mockClear();
     messageSuccessSpy.mockClear();
     messageErrorSpy.mockClear();
-    modalConfirmSpy.mockClear();
 
     (refineCore.useNotification as unknown as vi.Mock).mockReturnValue({
       open: openNotificationMock,
@@ -244,13 +234,7 @@ describe("LabelPage", () => {
     const { container } = render(<LabelPage />);
     await screen.findByText("Etiqueta 1");
     await user.click(screen.getByRole("button", { name: /eliminar/i }));
-
-    expect(modalConfirmSpy).toHaveBeenCalledTimes(1);
-    const modalConfig = lastModalConfirmConfig;
-    expect(modalConfig).toBeDefined();
-    expect(modalConfig?.content).toContain("Etiqueta 1");
-
-    const onOkPromise = modalConfig?.onOk?.() ?? Promise.resolve();
+    await user.click(await screen.findByRole("button", { name: "Sí" }));
 
     await waitFor(() =>
       expect(container.querySelector(".label-busy-overlay")).toBeInTheDocument(),
@@ -258,7 +242,6 @@ describe("LabelPage", () => {
 
     await act(async () => {
       resolveDelete?.({ status: 204 });
-      await onOkPromise;
     });
 
     await waitFor(() => expect(notificationSuccessSpy).toHaveBeenCalled());
@@ -279,13 +262,7 @@ describe("LabelPage", () => {
     const deleteButton = await screen.findByRole("button", { name: /eliminar/i });
 
     await user.click(deleteButton);
-    const modalConfig = lastModalConfirmConfig;
-    expect(modalConfig).toBeDefined();
-
-    await act(async () => {
-      const onOkPromise = modalConfig?.onOk?.() ?? Promise.resolve();
-      await onOkPromise;
-    });
+    await user.click(await screen.findByRole("button", { name: "Sí" }));
 
     await waitFor(() => expect(notificationErrorSpy).toHaveBeenCalled());
     expect(messageErrorSpy).toHaveBeenCalled();

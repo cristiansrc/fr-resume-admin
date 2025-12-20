@@ -4,11 +4,11 @@ import userEvent from "@testing-library/user-event";
 
 import { Home } from "../../../src/pages/home";
 import * as refineCore from "@refinedev/core";
-import * as basicDataProvider from "../../../src/providers/basicDataProvider";
+import * as basicDataProvider from "../../../src/api/basicDataProvider";
 import { MemoryRouter } from "react-router-dom";
 
 vi.mock("@refinedev/core");
-vi.mock("../../../src/providers/basicDataProvider");
+vi.mock("../../../src/api/basicDataProvider");
 vi.mock("../../../src/pages/label/LabelPage", () => ({
   LabelPage: () => <div data-testid="label-page" />,
 }));

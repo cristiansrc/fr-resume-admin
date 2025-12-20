@@ -2,137 +2,50 @@ import {
   Button,
   Form,
   Input,
-  message,
   Modal,
-  notification,
   Popconfirm,
-  Space,
-  Spin,
   Table,
   Typography,
 } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
-import { useNotification } from "@refinedev/core";
-import { useTable } from "@refinedev/antd";
+import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
 import { useCallback, useMemo, useState } from "react";
-import { VIDEO_RESOURCE } from "../../config/video-config";
-import {
-  createVideo,
-  deleteVideo,
-  type VideoPayload,
-  type VideoResponse,
-} from "../../providers/videoProvider";
+import { type VideoResponse } from "../../api";
+import { useVideoPage } from "../../hooks/video/useVideoPage";
+import { getYoutubePreviewUrl, getYoutubeVideoId } from "../../utils/youtube";
+import { LoadingBlock, SectionHeader } from "../../components";
 
-const { Title, Text } = Typography;
-
-const YOUTUBE_ID_PATTERN =
-  /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|v\/))([A-Za-z0-9_-]{11})/;
-
-const getYoutubeVideoId = (url: string) => {
-  const match = url.match(YOUTUBE_ID_PATTERN);
-  return match?.[1];
-};
-
-const getYoutubePreviewUrl = (url: string) => {
-  const videoId = getYoutubeVideoId(url);
-  return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : undefined;
-};
-
-interface VideoFormValues extends VideoPayload {}
+const { Text } = Typography;
 
 export const VideoPage = () => {
-  const [form] = Form.useForm<VideoFormValues>();
-  const { open } = useNotification();
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [isBusy, setBusy] = useState(false);
-  const [isSaving, setSaving] = useState(false);
+  const {
+    form,
+    isModalOpen,
+    isBusy,
+    isSaving,
+    tableProps,
+    isTableLoading,
+    handleDelete,
+    handleCreate,
+    handleOpenModal,
+    handleCloseModal,
+    validateYoutubeUrl,
+  } = useVideoPage();
+  const [previewVideoId, setPreviewVideoId] = useState<string>();
 
-  const notifyError = useCallback(
-    (errorMessage: string) => {
-      const errorPayload = {
-        message: "Error",
-        description: errorMessage,
-      };
-      notification.error(errorPayload);
-      message.error(errorMessage);
-      open?.({
-        type: "error",
-        ...errorPayload,
-      });
-    },
-    [open],
-  );
+  const handleOpenPreview = useCallback((url: string) => {
+    const videoId = getYoutubeVideoId(url);
+    if (videoId) {
+      setPreviewVideoId(videoId);
+    }
+  }, []);
 
-  const { tableProps, tableQuery } = useTable<VideoResponse>({
-    resource: VIDEO_RESOURCE,
-    pagination: {
-      pageSize: 10,
-    },
-  });
+  const handleClosePreview = useCallback(() => {
+    setPreviewVideoId(undefined);
+  }, []);
 
-  const handleDelete = useCallback(
-    async (videoId: number) => {
-      setBusy(true);
-      try {
-        const { status } = await deleteVideo(videoId);
-        if (status === 204) {
-          const successPayload = {
-            message: "Video eliminado",
-            description: "El video se eliminó correctamente.",
-          };
-          notification.success(successPayload);
-          message.success(successPayload.description ?? successPayload.message);
-          open?.({
-            type: "success",
-            ...successPayload,
-          });
-          await tableQuery.refetch();
-          return;
-        }
-
-        throw new Error("Respuesta inesperada");
-      } catch {
-        notifyError("No se pudo eliminar el video");
-      } finally {
-        setBusy(false);
-      }
-    },
-    [notifyError, open, tableQuery],
-  );
-
-  const handleCreate = useCallback(
-    async (values: VideoFormValues) => {
-      setBusy(true);
-      setSaving(true);
-      try {
-        const { status } = await createVideo(values);
-        if (status === 201) {
-          const successPayload = {
-            message: "Video creado",
-            description: "El video se creó correctamente.",
-          };
-          notification.success(successPayload);
-          message.success(successPayload.description ?? successPayload.message);
-          open?.({
-            type: "success",
-            ...successPayload,
-          });
-          setModalOpen(false);
-          form.resetFields();
-          await tableQuery.refetch();
-          return;
-        }
-
-        throw new Error("Respuesta inesperada");
-      } catch {
-        notifyError("No se pudo crear el video");
-      } finally {
-        setBusy(false);
-        setSaving(false);
-      }
-    },
-    [form, notifyError, open, tableQuery],
-  );
+  const previewEmbedUrl = previewVideoId
+    ? `https://www.youtube.com/embed/${previewVideoId}?autoplay=1`
+    : undefined;
 
   const columns = useMemo(
     () => [
@@ -158,7 +71,18 @@ export const VideoPage = () => {
           }
           return (
             <div className="video-preview">
-              <img src={previewUrl} alt={`${record.name} preview`} loading="lazy" />
+              <button
+                type="button"
+                onClick={() => handleOpenPreview(record.url)}
+                aria-label={`Reproducir ${record.name}`}
+                className="video-preview-button"
+              >
+                <img
+                  src={previewUrl}
+                  alt={`${record.name} preview`}
+                  loading="lazy"
+                />
+              </button>
             </div>
           );
         },
@@ -186,34 +110,25 @@ export const VideoPage = () => {
         ),
       },
     ],
-    [handleDelete, isBusy],
+    [handleDelete, handleOpenPreview, isBusy],
   );
-
-  const isTableLoading = tableProps.loading;
 
   return (
     <div className="video-panel">
-      <div className="video-header">
-        <Space size="middle" align="center">
-          <Title level={3}>Videos</Title>
-        </Space>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => setModalOpen(true)}
-        >
-          Agregar video
-        </Button>
-      </div>
+      <SectionHeader
+        className="video-header"
+        title="Videos"
+        action={{
+          label: "Agregar video",
+          icon: <PlusOutlined />,
+          onClick: handleOpenModal,
+        }}
+      />
       {isBusy && !isTableLoading && (
-        <div className="video-busy-overlay">
-          <Spin tip="Procesando..." size="large" />
-        </div>
+        <LoadingBlock className="video-busy-overlay" tip="Procesando..." />
       )}
       {isTableLoading ? (
-        <div className="video-loading">
-          <Spin tip="Cargando videos..." size="large" />
-        </div>
+        <LoadingBlock className="video-loading" tip="Cargando videos..." />
       ) : (
         <Table
           {...tableProps}
@@ -225,7 +140,7 @@ export const VideoPage = () => {
       <Modal
         open={isModalOpen}
         title="Agregar video"
-        onCancel={() => setModalOpen(false)}
+        onCancel={handleCloseModal}
         footer={null}
         destroyOnClose
       >
@@ -250,12 +165,7 @@ export const VideoPage = () => {
             rules={[
               { required: true, message: "Ingresa la URL del video" },
               {
-                validator: (_, value) =>
-                  value && !getYoutubeVideoId(value)
-                    ? Promise.reject(
-                        new Error("Solo se permiten videos alojados en YouTube"),
-                      )
-                    : Promise.resolve(),
+                validator: (_, value) => validateYoutubeUrl(value),
               },
             ]}
           >
@@ -267,6 +177,28 @@ export const VideoPage = () => {
             </Button>
           </Form.Item>
         </Form>
+      </Modal>
+      <Modal
+        open={Boolean(previewVideoId)}
+        title="Previsualización de video"
+        onCancel={handleClosePreview}
+        footer={null}
+        destroyOnClose
+        centered
+        width={900}
+        closeIcon={<CloseOutlined />}
+      >
+        {previewEmbedUrl ? (
+          <div className="video-preview-frame">
+            <iframe
+              src={previewEmbedUrl}
+              title="Video preview"
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+              className="video-preview-iframe"
+            />
+          </div>
+        ) : null}
       </Modal>
     </div>
   );

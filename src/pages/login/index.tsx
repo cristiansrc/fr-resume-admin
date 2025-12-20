@@ -1,43 +1,21 @@
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Card, Form, Input, Space, Typography, Alert } from "antd";
-import { useEffect } from "react";
-import { useLogin, useIsAuthenticated } from "@refinedev/core";
 import { Navigate } from "react-router-dom";
 import "../../styles/login.css";
-
-type LoginFormValues = {
-  user: string;
-  password: string;
-};
+import { useLoginPage, type LoginFormValues } from "../../hooks/login/useLoginPage";
 
 export const Login = () => {
-  const [form] = Form.useForm<LoginFormValues>();
-  const { mutate: login, isLoading: isLoginLoading, error } = useLogin();
   const {
-    data,
-    isLoading: isAuthLoading,
-  } = useIsAuthenticated();
-  const hasSession = Boolean(data?.authenticated);
+    form,
+    isLoginLoading,
+    errorMessage,
+    onFinish,
+    shouldRedirect,
+  } = useLoginPage();
 
-  if (!isAuthLoading && hasSession) {
+  if (shouldRedirect) {
     return <Navigate to="/" replace />;
   }
-
-  useEffect(() => {
-    if (error) {
-      form.setFieldsValue({ password: "" });
-    }
-  }, [error, form]);
-
-  const onFinish = ({ user, password }: LoginFormValues) => {
-    login({
-      username: user,
-      password,
-    });
-  };
-
-  const errorMessage =
-    error instanceof Error ? error.message : typeof error === "string" ? error : undefined;
 
   return (
     <div className="login-page">

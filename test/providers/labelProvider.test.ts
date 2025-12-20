@@ -1,9 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import axios from "axios";
+import { axiosClient } from "../../src/api/axiosClient";
 
-vi.mock("axios");
+vi.mock("../../src/api/axiosClient", () => ({
+  axiosClient: {
+    get: vi.fn(),
+    post: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
 
-let axiosMock = axios as unknown as {
+const axiosMock = axiosClient as unknown as {
   get: vi.Mock;
   post: vi.Mock;
   delete: vi.Mock;
@@ -18,39 +24,15 @@ const labelMock = {
 describe("labelProvider", () => {
   beforeEach(() => {
     localStorage.clear();
-    vi.stubEnv("VITE_API_URL", "https://api.test");
     axiosMock.get.mockReset();
     axiosMock.post.mockReset();
     axiosMock.delete.mockReset();
   });
 
-  const setupProvider = async (token?: string) => {
-    if (token) {
-      localStorage.setItem("refine-auth", token);
-    }
-    return import("../../src/providers/labelProvider");
-  };
+  const setupProvider = async () => import("../../src/api/labelProvider");
 
-  const setupProviderWithReset = async (token?: string) => {
-    if (token) {
-      localStorage.setItem("refine-auth", token);
-    }
-    await vi.resetModules();
-    vi.mock("axios");
-    const axiosModule = (await import("axios")).default as unknown as {
-      get: vi.Mock;
-      post: vi.Mock;
-      delete: vi.Mock;
-    };
-    axiosMock = axiosModule;
-    axiosMock.get.mockReset();
-    axiosMock.post.mockReset();
-    axiosMock.delete.mockReset();
-    return import("../../src/providers/labelProvider");
-  };
-
-  it("fetches labels with authorization header", async () => {
-    const { getLabels } = await setupProvider("token");
+  it("fetches labels", async () => {
+    const { getLabels } = await setupProvider();
     axiosMock.get.mockResolvedValueOnce({
       data: [labelMock],
     });
@@ -58,17 +40,12 @@ describe("labelProvider", () => {
     const result = await getLabels();
 
     expect(result).toEqual([labelMock]);
-    expect(axiosMock.get).toHaveBeenCalledWith("https://api.test/label", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer token",
-      },
-    });
+    expect(axiosMock.get).toHaveBeenCalledWith("/label");
   });
 
   it("creates a label and returns the response status", async () => {
     const payload = { name: "Nuevo", nameEng: "New" };
-    const { createLabel } = await setupProvider("token");
+    const { createLabel } = await setupProvider();
     axiosMock.post.mockResolvedValueOnce({
       data: labelMock,
       status: 201,
@@ -80,37 +57,20 @@ describe("labelProvider", () => {
       data: labelMock,
       status: 201,
     });
-    expect(axiosMock.post).toHaveBeenCalledWith(
-      "https://api.test/label",
-      payload,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer token",
-        },
-      },
-    );
+    expect(axiosMock.post).toHaveBeenCalledWith("/label", payload);
   });
 
   it("deletes a label using the provided id", async () => {
-    const { deleteLabel } = await setupProvider("token");
+    const { deleteLabel } = await setupProvider();
     axiosMock.delete.mockResolvedValueOnce({ status: 204 });
 
     const result = await deleteLabel(4200);
 
     expect(result).toEqual({ status: 204 });
-    expect(axiosMock.delete).toHaveBeenCalledWith(
-      "https://api.test/label/4200",
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer token",
-        },
-      },
-    );
+    expect(axiosMock.delete).toHaveBeenCalledWith("/label/4200");
   });
 
-  it("uses base headers when no token is present", async () => {
+  it("uses the base endpoint when no token is present", async () => {
     const { getLabels, createLabel, deleteLabel } = await setupProvider();
     axiosMock.get.mockResolvedValueOnce({
       data: [labelMock],
@@ -125,45 +85,8 @@ describe("labelProvider", () => {
     await createLabel({ name: "Prueba", nameEng: "Test" });
     await deleteLabel(1);
 
-    expect(axiosMock.get).toHaveBeenCalledWith("https://api.test/label", {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    expect(axiosMock.post).toHaveBeenCalledWith(
-      "https://api.test/label",
-      expect.any(Object),
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
-    expect(axiosMock.delete).toHaveBeenCalledWith(
-      "https://api.test/label/1",
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
-  });
-
-  it("falls back to the relative endpoint when the API URL is missing", async () => {
-    vi.stubEnv("VITE_API_URL");
-    const { getLabels } = await setupProviderWithReset("token");
-
-    axiosMock.get.mockResolvedValueOnce({
-      data: [labelMock],
-    });
-
-    await getLabels();
-
-    expect(axiosMock.get).toHaveBeenCalledWith("/label", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer token",
-      },
-    });
+    expect(axiosMock.get).toHaveBeenCalledWith("/label");
+    expect(axiosMock.post).toHaveBeenCalledWith("/label", expect.any(Object));
+    expect(axiosMock.delete).toHaveBeenCalledWith("/label/1");
   });
 });

@@ -1,7 +1,7 @@
 import type { AuthProvider } from "@refinedev/core";
+import { API_URL } from "./apiConfig";
 
 export const TOKEN_KEY = "refine-auth";
-const API_URL = import.meta.env.VITE_API_URL;
 
 const getValidToken = () => {
   const token = localStorage.getItem(TOKEN_KEY);

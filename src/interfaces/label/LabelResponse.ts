@@ -1,5 +1,5 @@
-export interface LabelResponse {
+import { LabelPayload } from "./LabelPayload";
+
+export interface LabelResponse extends LabelPayload {
   id: number;
-  name: string;
-  nameEng: string;
 }

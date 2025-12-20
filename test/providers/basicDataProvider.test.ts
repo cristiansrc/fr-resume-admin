@@ -1,9 +1,14 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import axios from "axios";
+import { axiosClient } from "../../src/api/axiosClient";
 
-vi.mock("axios");
+vi.mock("../../src/api/axiosClient", () => ({
+  axiosClient: {
+    get: vi.fn(),
+    put: vi.fn(),
+  },
+}));
 
-let axiosMock = axios as unknown as {
+const axiosMock = axiosClient as unknown as {
   get: vi.Mock;
   put: vi.Mock;
 };
@@ -34,35 +39,12 @@ describe("basicDataProvider", () => {
     localStorage.clear();
     axiosMock.get.mockReset();
     axiosMock.put.mockReset();
-    vi.stubEnv("VITE_API_URL", "https://api.test");
   });
 
-  const setupProvider = async (token?: string) => {
-    if (token) {
-      localStorage.setItem("refine-auth", token);
-    }
+  const setupProvider = async () => import("../../src/api/basicDataProvider");
 
-    return import("../../src/providers/basicDataProvider");
-  };
-
-  const setupProviderWithReset = async (token?: string) => {
-    if (token) {
-      localStorage.setItem("refine-auth", token);
-    }
-    await vi.resetModules();
-    vi.mock("axios");
-    const axiosModule = (await import("axios")).default as unknown as {
-      get: vi.Mock;
-      put: vi.Mock;
-    };
-    axiosMock = axiosModule;
-    axiosMock.get.mockReset();
-    axiosMock.put.mockReset();
-    return import("../../src/providers/basicDataProvider");
-  };
-
-  it("fetches basic data with auth headers", async () => {
-    const { getBasicData } = await setupProvider("token");
+  it("fetches basic data", async () => {
+    const { getBasicData } = await setupProvider();
     axiosMock.get.mockResolvedValueOnce({
       data: basicDataMock,
     });
@@ -70,19 +52,11 @@ describe("basicDataProvider", () => {
     const result = await getBasicData();
 
     expect(result).toEqual(basicDataMock);
-    expect(axiosMock.get).toHaveBeenCalledWith(
-      "https://api.test/basic-data/1",
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer token",
-        },
-      },
-    );
+    expect(axiosMock.get).toHaveBeenCalledWith("/basic-data/1");
   });
 
   it("updates basic data and returns the status", async () => {
-    const { updateBasicData } = await setupProvider("token");
+    const { updateBasicData } = await setupProvider();
     const { id, ...payload } = basicDataMock;
     axiosMock.put.mockResolvedValueOnce({
       data: basicDataMock,
@@ -95,19 +69,10 @@ describe("basicDataProvider", () => {
       data: basicDataMock,
       status: 204,
     });
-    expect(axiosMock.put).toHaveBeenCalledWith(
-      "https://api.test/basic-data/1",
-      payload,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer token",
-        },
-      },
-    );
+    expect(axiosMock.put).toHaveBeenCalledWith("/basic-data/1", payload);
   });
 
-  it("uses default headers when no auth token exists", async () => {
+  it("uses the base endpoint when loading without a token", async () => {
     const { getBasicData, updateBasicData } = await setupProvider();
 
     axiosMock.get.mockResolvedValueOnce({
@@ -139,40 +104,7 @@ describe("basicDataProvider", () => {
       descriptionEng: basicDataMock.descriptionEng,
     });
 
-    expect(axiosMock.get).toHaveBeenCalledWith(
-      "https://api.test/basic-data/1",
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
-    expect(axiosMock.put).toHaveBeenCalledWith(
-      "https://api.test/basic-data/1",
-      expect.any(Object),
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
-  });
-
-  it("falls back to relative endpoint when API url is missing", async () => {
-    vi.stubEnv("VITE_API_URL");
-    const { getBasicData } = await setupProviderWithReset("token");
-
-    axiosMock.get.mockResolvedValueOnce({
-      data: basicDataMock,
-    });
-
-    await getBasicData();
-
-    expect(axiosMock.get).toHaveBeenCalledWith("/basic-data/1", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer token",
-      },
-    });
+    expect(axiosMock.get).toHaveBeenCalledWith("/basic-data/1");
+    expect(axiosMock.put).toHaveBeenCalledWith("/basic-data/1", expect.any(Object));
   });
 });

@@ -18,7 +18,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import axios from "axios";
-import { authProvider, TOKEN_KEY } from "./providers/authProvider";
+import { authProvider, TOKEN_KEY } from "./api";
 import { ColorModeContextProvider } from "./contexts/color-mode";
 import { Home } from "./pages/home";
 import { Login } from "./pages/login";

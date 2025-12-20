@@ -1,26 +1,14 @@
-import axios from "axios";
 import { VIDEO_RESOURCE } from "../config/video-config";
-import { TOKEN_KEY } from "./authProvider";
+import { axiosClient } from "./axiosClient";
 import type { VideoPayload } from "../interfaces/video/VideoPayload";
 import type { VideoResponse } from "../interfaces/video/VideoResponse";
 
 export type { VideoPayload, VideoResponse };
 
-const API_URL = import.meta.env.VITE_API_URL ?? "";
-const VIDEO_ENDPOINT = `${API_URL}/${VIDEO_RESOURCE}`;
-
-const getRequestHeaders = () => {
-  const token = localStorage.getItem(TOKEN_KEY);
-  return {
-    "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-};
+const VIDEO_ENDPOINT = `/${VIDEO_RESOURCE}`;
 
 export const getVideos = async (): Promise<VideoResponse[]> => {
-  const { data } = await axios.get<VideoResponse[]>(VIDEO_ENDPOINT, {
-    headers: getRequestHeaders(),
-  });
+  const { data } = await axiosClient.get<VideoResponse[]>(VIDEO_ENDPOINT);
   return data;
 };
 
@@ -38,9 +26,7 @@ export type { VideoCreateResult, VideoDeleteResult };
 export const createVideo = async (
   payload: VideoPayload,
 ): Promise<VideoCreateResult> => {
-  const response = await axios.post<VideoResponse>(VIDEO_ENDPOINT, payload, {
-    headers: getRequestHeaders(),
-  });
+  const response = await axiosClient.post<VideoResponse>(VIDEO_ENDPOINT, payload);
   return {
     data: response.data,
     status: response.status,
@@ -48,9 +34,7 @@ export const createVideo = async (
 };
 
 export const deleteVideo = async (id: number): Promise<VideoDeleteResult> => {
-  const response = await axios.delete(`${VIDEO_ENDPOINT}/${id}`, {
-    headers: getRequestHeaders(),
-  });
+  const response = await axiosClient.delete(`${VIDEO_ENDPOINT}/${id}`);
   return {
     status: response.status,
   };

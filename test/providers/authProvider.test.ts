@@ -8,7 +8,7 @@ const setupAuthProvider = async (apiUrl = "http://localhost") => {
   vi.stubGlobal("fetch", fetchMock);
   fetchMock.mockReset();
   localStorage.clear();
-  return import("../../src/providers/authProvider");
+  return import("../../src/api/authProvider");
 };
 
 describe("authProvider", () => {

@@ -3,61 +3,60 @@ import dayjs from "dayjs";
 import type { MutableRefObject } from "react";
 
 import {
-  sanitizeSocialValue,
-  validateSocialField,
-  isDateOutOfSelectableRange,
   getFieldValue,
   buildBasicDataPayload,
-} from "../../../src/pages/home/BasicDataForm";
-import type { BasicDataFormValues } from "../../../src/pages/home/BasicDataForm";
-import { runBasicDataLoaderIfNeeded } from "../../../src/pages/home/BasicDataForm";
+  isDateOutOfSelectableRange,
+  runBasicDataLoaderIfNeeded,
+} from "../../../src/hooks/home/useBasicDataForm";
+import type { BasicDataFormValues } from "../../../src/hooks/home/useBasicDataForm";
+import { normalizeSocialValue, validateSocialField } from "../../../src/utils/socialLinks";
 
 describe("basic data helpers", () => {
   it("sanitizes social links correctly", () => {
     expect(
-      sanitizeSocialValue("  x.com/profile  ", {
+      normalizeSocialValue("  x.com/profile  ", {
         base: "https://x.com/",
         allowedPrefixes: [],
         hint: "x.com",
       }),
     ).toBe("https://x.com/profile");
     expect(
-      sanitizeSocialValue("http://github.com/test", {
+      normalizeSocialValue("http://github.com/test", {
         base: "https://github.com/",
         allowedPrefixes: [],
         hint: "github.com",
       }),
     ).toBe("http://github.com/test");
     expect(
-      sanitizeSocialValue("www.instagram.com/yo", {
+      normalizeSocialValue("www.instagram.com/yo", {
         base: "https://instagram.com/",
         allowedPrefixes: [],
         hint: "instagram.com",
       }),
     ).toBe("https://www.instagram.com/yo");
     expect(
-      sanitizeSocialValue("instagram.com", {
+      normalizeSocialValue("instagram.com", {
         base: "https://instagram.com/",
         allowedPrefixes: [],
         hint: "instagram.com",
       }),
     ).toBe("https://instagram.com");
     expect(
-      sanitizeSocialValue("   ", {
+      normalizeSocialValue("   ", {
         base: "",
         allowedPrefixes: [],
         hint: "",
       }),
     ).toBe("");
     expect(
-      sanitizeSocialValue(undefined, {
+      normalizeSocialValue(undefined, {
         base: "",
         allowedPrefixes: [],
         hint: "",
       }),
     ).toBe("");
     expect(
-      sanitizeSocialValue("usuario", {
+      normalizeSocialValue("usuario", {
         base: "https://github.com/",
         allowedPrefixes: [],
         hint: "github.com",

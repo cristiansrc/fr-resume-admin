@@ -13,11 +13,11 @@ import { MemoryRouter } from "react-router-dom";
 
 import { BasicDataForm } from "../../../src/pages/home/BasicDataForm";
 import * as refineCore from "@refinedev/core";
-import * as basicDataProvider from "../../../src/providers/basicDataProvider";
+import * as basicDataProvider from "../../../src/api/basicDataProvider";
 import { message, notification } from "antd";
 
 vi.mock("@refinedev/core");
-vi.mock("../../../src/providers/basicDataProvider");
+vi.mock("../../../src/api/basicDataProvider");
 
 const basicDataMock = {
   id: "1",

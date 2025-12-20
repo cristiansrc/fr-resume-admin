@@ -1,6 +1,5 @@
-export interface VideoResponse {
+import { VideoPayload } from "./VideoPayload";
+
+export interface VideoResponse extends VideoPayload {
   id: number;
-  name: string;
-  nameEng: string;
-  url: string;
 }

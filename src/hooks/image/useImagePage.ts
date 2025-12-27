@@ -2,6 +2,7 @@ import { Form, message } from "antd";
 import type { RcFile, UploadFile } from "antd/es/upload/interface";
 import { useTable } from "@refinedev/antd";
 import { useCallback, useState } from "react";
+import axios from "axios";
 import { IMAGE_RESOURCE } from "../../config/image-config";
 import {
   createImage,
@@ -74,11 +75,19 @@ export const useImagePage = () => {
         }
 
         throw new Error("Respuesta inesperada");
-      } catch {
-        notifyError({
-          message: "Error",
-          description: "No se pudo eliminar la imagen",
-        });
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 412) {
+          notifyError({
+            message: "No se pudo eliminar",
+            description:
+              "La imagen está relacionada. Elimina la relación antes de borrar.",
+          });
+        } else {
+          notifyError({
+            message: "Error",
+            description: "No se pudo eliminar la imagen",
+          });
+        }
       } finally {
         setBusy(false);
       }

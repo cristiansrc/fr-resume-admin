@@ -1,5 +1,9 @@
 import {
+  BookOutlined,
   FileTextOutlined,
+  ForkOutlined,
+  BranchesOutlined,
+  HomeOutlined,
   LogoutOutlined,
   PictureOutlined,
   TagOutlined,
@@ -18,8 +22,12 @@ import {
 import { useMemo } from "react";
 import "../../styles/home.css";
 import { BasicDataForm } from "./BasicDataForm";
+import { HomePage } from "./HomePage";
+import { BlogPage } from "../blog/BlogPage";
 import { ImagePage } from "../image/ImagePage";
 import { LabelPage } from "../label/LabelPage";
+import { SkillPage } from "../skill/SkillPage";
+import { SkillSonPage } from "../skill-son/SkillSonPage";
 import { VideoPage } from "../video/VideoPage";
 import { MENU_KEYS, useHomePage } from "../../hooks/home/useHomePage";
 
@@ -27,9 +35,29 @@ const { Header, Sider, Content } = Layout;
 
 const MENU_ITEMS = [
   {
+    key: MENU_KEYS.HOME,
+    label: "Home",
+    icon: <HomeOutlined />,
+  },
+  {
     key: MENU_KEYS.BASIC_DATA,
     label: "Datos Básicos",
     icon: <FileTextOutlined />,
+  },
+  {
+    key: MENU_KEYS.BLOGS,
+    label: "Blogs",
+    icon: <BookOutlined />,
+  },
+  {
+    key: MENU_KEYS.SKILL,
+    label: "Habilidades",
+    icon: <BranchesOutlined />,
+  },
+  {
+    key: MENU_KEYS.SKILL_SON,
+    label: "Habilidades hijas",
+    icon: <ForkOutlined />,
   },
   {
     key: MENU_KEYS.LABEL,
@@ -45,11 +73,6 @@ const MENU_ITEMS = [
     key: MENU_KEYS.IMAGES,
     label: "Imágenes",
     icon: <PictureOutlined />,
-  },
-  {
-    key: MENU_KEYS.OTHER,
-    label: "Otra sección",
-    icon: <FileTextOutlined />,
   },
 ];
 
@@ -127,16 +150,22 @@ export const Home = () => {
           />
         </Sider>
         <Content className="home-content">
-          {activeMenuKey === MENU_KEYS.BASIC_DATA ? (
+          {activeMenuKey === MENU_KEYS.HOME ? (
+            <HomePage />
+          ) : activeMenuKey === MENU_KEYS.BASIC_DATA ? (
             <BasicDataForm />
+          ) : activeMenuKey === MENU_KEYS.BLOGS ? (
+            <BlogPage />
+          ) : activeMenuKey === MENU_KEYS.SKILL ? (
+            <SkillPage />
+          ) : activeMenuKey === MENU_KEYS.SKILL_SON ? (
+            <SkillSonPage />
           ) : activeMenuKey === MENU_KEYS.LABEL ? (
             <LabelPage />
           ) : activeMenuKey === MENU_KEYS.VIDEO ? (
             <VideoPage />
-          ) : activeMenuKey === MENU_KEYS.IMAGES ? (
-            <ImagePage />
           ) : (
-            <Typography.Text>Contenido de la sección alternativa</Typography.Text>
+            <ImagePage />
           )}
         </Content>
       </Layout>

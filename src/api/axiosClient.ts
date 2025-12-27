@@ -22,20 +22,8 @@ axiosClient.interceptors.response.use(
   (error) => {
     if (axios.isAxiosError(error)) {
       const status = error.response?.status;
-
       if (status === 401) {
         localStorage.removeItem(TOKEN_KEY);
-        if (typeof window !== "undefined") {
-          window.location.assign("/login");
-        }
-      }
-
-      if (status === 404 && typeof window !== "undefined") {
-        window.location.assign("/not-found");
-      }
-
-      if (status && status >= 500 && typeof window !== "undefined") {
-        window.location.assign("/error");
       }
     }
 

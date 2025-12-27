@@ -1,6 +1,7 @@
 import { Form } from "antd";
 import { useTable } from "@refinedev/antd";
 import { useCallback, useState } from "react";
+import axios from "axios";
 import { VIDEO_RESOURCE } from "../../config/video-config";
 import {
   createVideo,
@@ -48,11 +49,19 @@ export const useVideoPage = () => {
         }
 
         throw new Error("Respuesta inesperada");
-      } catch {
-        notifyError({
-          message: "Error",
-          description: "No se pudo eliminar el video",
-        });
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 412) {
+          notifyError({
+            message: "No se pudo eliminar",
+            description:
+              "El video está relacionado. Elimina la relación antes de borrar.",
+          });
+        } else {
+          notifyError({
+            message: "Error",
+            description: "No se pudo eliminar el video",
+          });
+        }
       } finally {
         setBusy(false);
       }

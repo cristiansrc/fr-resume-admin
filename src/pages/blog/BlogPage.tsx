@@ -4,6 +4,7 @@ import {
   Input,
   Modal,
   Popconfirm,
+  Select,
   Row,
   Col,
   Table,
@@ -13,6 +14,7 @@ import { useCallback, useMemo, useState } from "react";
 import {
   ImageSelector,
   LoadingBlock,
+  RichTextEditor,
   SectionHeader,
   VideoSelector,
 } from "../../components";
@@ -51,6 +53,8 @@ const BlogForm = ({ mode, blogId, onBack, onSaved }: BlogFormProps) => {
     form,
     isLoading,
     isSaving,
+    blogTypes,
+    isBlogTypesLoading,
     selectedImage,
     selectedVideo,
     handleImageSelect,
@@ -150,6 +154,24 @@ const BlogForm = ({ mode, blogId, onBack, onSaved }: BlogFormProps) => {
                 <Input placeholder="Opcional" />
               </Form.Item>
             </Col>
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name="blogTypeId"
+                label="Tipo de blog"
+                rules={[{ required: true, message: "Selecciona el tipo de blog" }]}
+              >
+                <Select
+                  placeholder="Selecciona un tipo de blog"
+                  loading={isBlogTypesLoading}
+                  options={blogTypes.map((blogType) => ({
+                    value: blogType.id,
+                    label: blogType.name,
+                  }))}
+                  showSearch
+                  optionFilterProp="label"
+                />
+              </Form.Item>
+            </Col>
           </Row>
           <Row gutter={16}>
             <Col xs={24} sm={12}>
@@ -186,8 +208,9 @@ const BlogForm = ({ mode, blogId, onBack, onSaved }: BlogFormProps) => {
                 rules={[
                   { required: true, message: "Ingresa la descripción" },
                 ]}
+                valuePropName="value"
               >
-                <Input.TextArea rows={4} placeholder="Descripción" />
+                <RichTextEditor placeholder="Descripción" />
               </Form.Item>
             </Col>
             <Col xs={24} sm={12}>
@@ -197,8 +220,9 @@ const BlogForm = ({ mode, blogId, onBack, onSaved }: BlogFormProps) => {
                 rules={[
                   { required: true, message: "Ingresa la descripción en inglés" },
                 ]}
+                valuePropName="value"
               >
-                <Input.TextArea rows={4} placeholder="Description in English" />
+                <RichTextEditor placeholder="Description in English" />
               </Form.Item>
             </Col>
           </Row>

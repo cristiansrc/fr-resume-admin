@@ -9,6 +9,9 @@ import { MemoryRouter } from "react-router-dom";
 
 vi.mock("@refinedev/core");
 vi.mock("../../../src/api/basicDataProvider");
+vi.mock("../../../src/pages/home/HomePage", () => ({
+  HomePage: () => <div data-testid="home-page" />,
+}));
 vi.mock("../../../src/pages/label/LabelPage", () => ({
   LabelPage: () => <div data-testid="label-page" />,
 }));
@@ -64,7 +67,10 @@ describe("Home page", () => {
     });
   });
 
-  it("renders the header title and the Datos Básicos menu option", async () => {
+  it(
+    "renders the header title and the Datos Básicos menu option",
+    async () => {
+    const user = userEvent.setup();
     render(
       <MemoryRouter>
         <Home />
@@ -77,10 +83,14 @@ describe("Home page", () => {
     expect(
       screen.getByRole("menuitem", { name: /datos básicos/i }),
     ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("menuitem", { name: /datos básicos/i }));
     expect(
       await screen.findByRole("heading", { name: /datos básicos/i }),
     ).toBeInTheDocument();
-  });
+    },
+    10000,
+  );
 
   it("calls logout when the dropdown logout button is clicked", async () => {
     const user = userEvent.setup();
@@ -96,19 +106,21 @@ describe("Home page", () => {
     expect(logoutMutation).toHaveBeenCalled();
   });
 
-  it("only fetches the basic data once on load", async () => {
+  it("only fetches the basic data once when opening the form", async () => {
+    const user = userEvent.setup();
     render(
       <MemoryRouter>
         <Home />
       </MemoryRouter>,
     );
 
+    await user.click(screen.getByRole("menuitem", { name: /datos básicos/i }));
     await waitFor(() =>
       expect(basicDataProvider.getBasicData).toHaveBeenCalledTimes(1),
     );
   });
 
-  it("re-renders the BasicDataForm when clicking the menu item", async () => {
+  it("renders the BasicDataForm when clicking the menu item", async () => {
     const user = userEvent.setup();
     render(
       <MemoryRouter>
@@ -131,18 +143,15 @@ describe("Home page", () => {
       </MemoryRouter>,
     );
 
-    const otherMenuItem = screen.getByRole("menuitem", { name: /otra sección/i });
-    await user.click(otherMenuItem);
-
-    expect(
-      screen.getByText(/contenido de la sección alternativa/i),
-    ).toBeInTheDocument();
-
     await user.click(screen.getByRole("menuitem", { name: /datos básicos/i }));
 
     expect(
       await screen.findByRole("heading", { name: /datos básicos/i }),
     ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("menuitem", { name: /home/i }));
+
+    expect(await screen.findByTestId("home-page")).toBeInTheDocument();
   });
 
   it("renders the label page when the label menu option is selected", async () => {

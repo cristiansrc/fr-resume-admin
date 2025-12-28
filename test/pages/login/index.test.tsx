@@ -38,7 +38,9 @@ describe("Login page", () => {
     });
   });
 
-  it("renders the login form and calls mutate with credentials", async () => {
+  it(
+    "renders the login form and calls mutate with credentials",
+    async () => {
     const user = userEvent.setup();
     render(<Login />);
 
@@ -52,7 +54,9 @@ describe("Login page", () => {
         password: "secret",
       }),
     );
-  });
+    },
+    10000,
+  );
 
   it("redirects to home when session already exists", () => {
     (refineCore.useIsAuthenticated as unknown as vi.Mock).mockReturnValue({

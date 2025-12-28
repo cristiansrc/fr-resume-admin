@@ -394,6 +394,97 @@
   display: block;
 }
 
+.blog-type-panel {
+  width: 100%;
+  position: relative;
+}
+
+.blog-type-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.blog-type-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.blog-type-busy-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  pointer-events: all;
+  z-index: 10;
+}
+
+.blog-type-form {
+  width: 100%;
+}
+
+.blog-type-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.experience-panel {
+  width: 100%;
+  position: relative;
+}
+
+.experience-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.experience-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.experience-busy-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  pointer-events: all;
+  z-index: 10;
+}
+
+.experience-form {
+  width: 100%;
+}
+
+.experience-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.experience-skill-son-selection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.experience-skill-son-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .skill-son-panel {
   width: 100%;
   position: relative;
@@ -480,6 +571,58 @@
 }
 
 .skill-son-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-type-panel {
+  width: 100%;
+  position: relative;
+}
+
+.skill-type-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.skill-type-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.skill-type-busy-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  pointer-events: all;
+  z-index: 10;
+}
+
+.skill-type-form {
+  width: 100%;
+}
+
+.skill-type-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.skill-type-selection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.skill-type-list {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;

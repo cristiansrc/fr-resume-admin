@@ -4,8 +4,11 @@ import { useState } from "react";
 export const MENU_KEYS = {
   HOME: "home",
   BLOGS: "blogs",
+  BLOG_TYPE: "blog-type",
+  EXPERIENCE: "experience",
   SKILL: "skill",
   SKILL_SON: "skill-son",
+  SKILL_TYPE: "skill-type",
   BASIC_DATA: "basic-data",
   LABEL: "label",
   VIDEO: "video",

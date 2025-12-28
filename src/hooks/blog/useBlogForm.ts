@@ -3,9 +3,11 @@ import { useCallback, useEffect, useState } from "react";
 import {
   createBlog,
   getBlog,
+  getBlogTypes,
   updateBlog,
   type BlogPayload,
   type BlogResponse,
+  type BlogTypeResponse,
   type ImageResponse,
   type VideoResponse,
 } from "../../api";
@@ -28,8 +30,25 @@ export const useBlogForm = ({
   const { notifyError, notifySuccess } = useNotifier();
   const [isLoading, setLoading] = useState(false);
   const [isSaving, setSaving] = useState(false);
+  const [blogTypes, setBlogTypes] = useState<BlogTypeResponse[]>([]);
+  const [isBlogTypesLoading, setBlogTypesLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<ImageResponse | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<VideoResponse | null>(null);
+
+  const loadBlogTypes = useCallback(async () => {
+    setBlogTypesLoading(true);
+    try {
+      const response = await getBlogTypes();
+      setBlogTypes(response ?? []);
+    } catch {
+      notifyError({
+        message: "Error",
+        description: "No se pudo cargar los tipos de blog",
+      });
+    } finally {
+      setBlogTypesLoading(false);
+    }
+  }, [notifyError]);
 
   const loadBlog = useCallback(async () => {
     if (mode !== "edit" || !blogId) {
@@ -49,6 +68,7 @@ export const useBlogForm = ({
         descriptionEng: data.descriptionEng,
         imageUrlId: data.imageUrl?.id,
         videoUrlId: data.videoUrl?.id,
+        blogTypeId: data.blogType?.id,
       });
       setSelectedImage(data.imageUrl ?? null);
       setSelectedVideo(data.videoUrl ?? null);
@@ -65,6 +85,10 @@ export const useBlogForm = ({
   useEffect(() => {
     loadBlog();
   }, [loadBlog]);
+
+  useEffect(() => {
+    loadBlogTypes();
+  }, [loadBlogTypes]);
 
   const handleImageSelect = useCallback(
     (selectedIds: number[], selectedRecords: ImageResponse[]) => {
@@ -149,6 +173,8 @@ export const useBlogForm = ({
     form,
     isLoading,
     isSaving,
+    blogTypes,
+    isBlogTypesLoading,
     selectedImage,
     selectedVideo,
     handleImageSelect,

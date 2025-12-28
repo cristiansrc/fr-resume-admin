@@ -1,9 +1,11 @@
 export { Header } from "./header";
 export { LoadingBlock } from "./LoadingBlock";
+export { RichTextEditor } from "./RichTextEditor";
 export {
   ImageSelector,
   LabelSelector,
   ResourceSelectorModal,
+  SkillSelector,
   SkillSonSelector,
   VideoSelector,
 } from "./resource-selector";

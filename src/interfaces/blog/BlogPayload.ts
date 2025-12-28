@@ -9,4 +9,5 @@ export interface BlogPayload {
   descriptionEng: string;
   imageUrlId: number;
   videoUrlId: number;
+  blogTypeId: number;
 }

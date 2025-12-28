@@ -123,6 +123,22 @@ describe("axiosClient interceptors", () => {
     expect(assignMock).toHaveBeenCalledWith("/error");
   });
 
+  it("skips redirects when the header disables them", async () => {
+    const assignMock = vi.fn();
+    vi.stubGlobal("window", { location: { assign: assignMock } });
+    isAxiosErrorMock.mockReturnValue(true);
+
+    const { responseError } = await setupModule();
+
+    await expect(
+      responseError({
+        response: { status: 404 },
+        config: { headers: { "x-skip-error-redirect": "true" } },
+      }),
+    ).rejects.toBeDefined();
+    expect(assignMock).not.toHaveBeenCalled();
+  });
+
   it("does not redirect for non-axios errors", async () => {
     const assignMock = vi.fn();
     vi.stubGlobal("window", { location: { assign: assignMock } });

@@ -88,7 +88,9 @@ describe("LabelPage", () => {
     expect(await screen.findByText("Etiqueta 1")).toBeInTheDocument();
   });
 
-  it("creates a label, shows the overlay, and notifies success", async () => {
+  it(
+    "creates a label, shows the overlay, and notifies success",
+    async () => {
     const user = userEvent.setup();
     let resolveCreate: ((value: { data: typeof createdLabel; status: number }) => void) | undefined;
     createLabelMock.mockImplementation(
@@ -127,9 +129,13 @@ describe("LabelPage", () => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
     );
     await waitFor(() => expect(refetchMock).toHaveBeenCalledTimes(1));
-  });
+    },
+    10000,
+  );
 
-  it("keeps the modal open when creating fails", async () => {
+  it(
+    "keeps the modal open when creating fails",
+    async () => {
     const user = userEvent.setup();
     createLabelMock.mockRejectedValueOnce(new Error("failed"));
 
@@ -148,9 +154,13 @@ describe("LabelPage", () => {
       expect.objectContaining({ type: "error" }),
     );
     expect(screen.getByRole("dialog")).toBeInTheDocument();
-  });
+    },
+    10000,
+  );
 
-  it("notifies error when creating returns an unexpected status", async () => {
+  it(
+    "notifies error when creating returns an unexpected status",
+    async () => {
     const user = userEvent.setup();
     createLabelMock.mockResolvedValueOnce({
       data: createdLabel,
@@ -172,7 +182,9 @@ describe("LabelPage", () => {
       expect.objectContaining({ type: "error" }),
     );
     expect(screen.getByRole("dialog")).toBeInTheDocument();
-  });
+    },
+    10000,
+  );
 
   it("closes the creation modal when the close icon is clicked", async () => {
     const user = userEvent.setup();

@@ -3,6 +3,9 @@ import {
   FileTextOutlined,
   ForkOutlined,
   BranchesOutlined,
+  AppstoreOutlined,
+  UnorderedListOutlined,
+  SolutionOutlined,
   HomeOutlined,
   LogoutOutlined,
   PictureOutlined,
@@ -24,10 +27,13 @@ import "../../styles/home.css";
 import { BasicDataForm } from "./BasicDataForm";
 import { HomePage } from "./HomePage";
 import { BlogPage } from "../blog/BlogPage";
+import { BlogTypePage } from "../blog-type/BlogTypePage";
+import { ExperiencePage } from "../experience/ExperiencePage";
 import { ImagePage } from "../image/ImagePage";
 import { LabelPage } from "../label/LabelPage";
 import { SkillPage } from "../skill/SkillPage";
 import { SkillSonPage } from "../skill-son/SkillSonPage";
+import { SkillTypePage } from "../skill-type/SkillTypePage";
 import { VideoPage } from "../video/VideoPage";
 import { MENU_KEYS, useHomePage } from "../../hooks/home/useHomePage";
 
@@ -48,6 +54,21 @@ const MENU_ITEMS = [
     key: MENU_KEYS.BLOGS,
     label: "Blogs",
     icon: <BookOutlined />,
+  },
+  {
+    key: MENU_KEYS.BLOG_TYPE,
+    label: "Tipos de blog",
+    icon: <UnorderedListOutlined />,
+  },
+  {
+    key: MENU_KEYS.EXPERIENCE,
+    label: "Experiencias",
+    icon: <SolutionOutlined />,
+  },
+  {
+    key: MENU_KEYS.SKILL_TYPE,
+    label: "Tipos de habilidad",
+    icon: <AppstoreOutlined />,
   },
   {
     key: MENU_KEYS.SKILL,
@@ -156,8 +177,14 @@ export const Home = () => {
             <BasicDataForm />
           ) : activeMenuKey === MENU_KEYS.BLOGS ? (
             <BlogPage />
+          ) : activeMenuKey === MENU_KEYS.BLOG_TYPE ? (
+            <BlogTypePage />
+          ) : activeMenuKey === MENU_KEYS.EXPERIENCE ? (
+            <ExperiencePage />
           ) : activeMenuKey === MENU_KEYS.SKILL ? (
             <SkillPage />
+          ) : activeMenuKey === MENU_KEYS.SKILL_TYPE ? (
+            <SkillTypePage />
           ) : activeMenuKey === MENU_KEYS.SKILL_SON ? (
             <SkillSonPage />
           ) : activeMenuKey === MENU_KEYS.LABEL ? (

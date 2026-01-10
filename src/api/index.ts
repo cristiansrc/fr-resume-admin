@@ -4,6 +4,7 @@ export { authProvider, TOKEN_KEY } from "./authProvider";
 export * from "./basicDataProvider";
 export * from "./blogProvider";
 export * from "./blogTypeProvider";
+export * from "./educationProvider";
 export * from "./experienceProvider";
 export * from "./homeProvider";
 export * from "./imageProvider";

@@ -6,6 +6,7 @@ import {
   AppstoreOutlined,
   UnorderedListOutlined,
   SolutionOutlined,
+  ReadOutlined,
   HomeOutlined,
   LogoutOutlined,
   PictureOutlined,
@@ -29,6 +30,7 @@ import { HomePage } from "./HomePage";
 import { BlogPage } from "../blog/BlogPage";
 import { BlogTypePage } from "../blog-type/BlogTypePage";
 import { ExperiencePage } from "../experience/ExperiencePage";
+import { EducationPage } from "../education/EducationPage";
 import { ImagePage } from "../image/ImagePage";
 import { LabelPage } from "../label/LabelPage";
 import { SkillPage } from "../skill/SkillPage";
@@ -64,6 +66,11 @@ const MENU_ITEMS = [
     key: MENU_KEYS.EXPERIENCE,
     label: "Experiencias",
     icon: <SolutionOutlined />,
+  },
+  {
+    key: MENU_KEYS.EDUCATION,
+    label: "Educación",
+    icon: <ReadOutlined />,
   },
   {
     key: MENU_KEYS.SKILL_TYPE,
@@ -181,6 +188,8 @@ export const Home = () => {
             <BlogTypePage />
           ) : activeMenuKey === MENU_KEYS.EXPERIENCE ? (
             <ExperiencePage />
+          ) : activeMenuKey === MENU_KEYS.EDUCATION ? (
+            <EducationPage />
           ) : activeMenuKey === MENU_KEYS.SKILL ? (
             <SkillPage />
           ) : activeMenuKey === MENU_KEYS.SKILL_TYPE ? (

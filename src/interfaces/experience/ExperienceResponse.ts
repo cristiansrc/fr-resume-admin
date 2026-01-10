@@ -5,7 +5,15 @@ export interface ExperienceResponse {
   yearStart: string;
   yearEnd: string;
   company: string;
-  description: string;
-  descriptionEng: string;
+  location: string;
+  locationEng: string;
+  position: string;
+  positionEng: string;
+  summary: string;
+  summaryEng: string;
+  summaryPdf: string;
+  summaryPdfEng: string;
+  descriptionItemsPdf: string[];
+  descriptionItemsPdfEng: string[];
   skillSons: SkillSonResponse[];
 }

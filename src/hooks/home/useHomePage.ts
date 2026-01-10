@@ -6,6 +6,7 @@ export const MENU_KEYS = {
   BLOGS: "blogs",
   BLOG_TYPE: "blog-type",
   EXPERIENCE: "experience",
+  EDUCATION: "education",
   SKILL: "skill",
   SKILL_SON: "skill-son",
   SKILL_TYPE: "skill-type",

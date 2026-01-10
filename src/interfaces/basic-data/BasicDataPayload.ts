@@ -16,4 +16,8 @@ export interface BasicDataPayload {
   github: string;
   description: string;
   descriptionEng: string;
+  wrapper: string[];
+  wrapperEng: string[];
+  descriptionPdf: string[];
+  descriptionPdfEng: string[];
 }

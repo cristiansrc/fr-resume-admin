@@ -16,8 +16,16 @@ export interface ExperienceFormValues {
   yearStart?: Dayjs;
   yearEnd?: Dayjs;
   company: string;
-  description: string;
-  descriptionEng: string;
+  position?: string;
+  positionEng?: string;
+  location?: string;
+  locationEng?: string;
+  summary: string;
+  summaryEng: string;
+  summaryPdf?: string;
+  summaryPdfEng?: string;
+  descriptionItemsPdf?: string[];
+  descriptionItemsPdfEng?: string[];
   skillSonIds: number[];
 }
 
@@ -49,8 +57,16 @@ export const useExperienceForm = ({
         yearStart: data.yearStart ? dayjs(data.yearStart) : undefined,
         yearEnd: data.yearEnd ? dayjs(data.yearEnd) : undefined,
         company: data.company,
-        description: data.description,
-        descriptionEng: data.descriptionEng,
+        position: data.position,
+        positionEng: data.positionEng,
+        location: data.location,
+        locationEng: data.locationEng,
+        summary: data.summary,
+        summaryEng: data.summaryEng,
+        summaryPdf: data.summaryPdf,
+        summaryPdfEng: data.summaryPdfEng,
+        descriptionItemsPdf: data.descriptionItemsPdf ?? [],
+        descriptionItemsPdfEng: data.descriptionItemsPdfEng ?? [],
         skillSonIds: data.skillSons?.map((skillSon) => skillSon.id) ?? [],
       });
       setSelectedSkillSons(data.skillSons ?? []);
@@ -90,8 +106,16 @@ export const useExperienceForm = ({
             : "",
           yearEnd: values.yearEnd ? values.yearEnd.format(BASIC_DATA_DATE_FORMAT) : "",
           company: values.company,
-          description: values.description,
-          descriptionEng: values.descriptionEng,
+          position: values.position ?? "",
+          positionEng: values.positionEng ?? "",
+          location: values.location ?? "",
+          locationEng: values.locationEng ?? "",
+          summary: values.summary,
+          summaryEng: values.summaryEng,
+          summaryPdf: values.summaryPdf ?? "",
+          summaryPdfEng: values.summaryPdfEng ?? "",
+          descriptionItemsPdf: values.descriptionItemsPdf ?? [],
+          descriptionItemsPdfEng: values.descriptionItemsPdfEng ?? [],
           skillSonIds: values.skillSonIds,
         };
         const response =

@@ -37,8 +37,16 @@ describe("useExperienceForm", () => {
       yearStart: "2022-01-01",
       yearEnd: "2023-01-01",
       company: "Company",
-      description: "Desc",
-      descriptionEng: "Desc EN",
+      position: "Dev",
+      positionEng: "Dev EN",
+      location: "Lima",
+      locationEng: "Lima EN",
+      summary: "Desc",
+      summaryEng: "Desc EN",
+      summaryPdf: "Resumen PDF",
+      summaryPdfEng: "Summary PDF",
+      descriptionItemsPdf: ["Item 1"],
+      descriptionItemsPdfEng: ["Item 1 EN"],
       skillSons: [{ id: 1, name: "Skill" }],
     });
 
@@ -51,8 +59,16 @@ describe("useExperienceForm", () => {
       yearStart: dayjs("2022-01-01"),
       yearEnd: dayjs("2023-01-01"),
       company: "Company",
-      description: "Desc",
-      descriptionEng: "Desc EN",
+      position: "Dev",
+      positionEng: "Dev EN",
+      location: "Lima",
+      locationEng: "Lima EN",
+      summary: "Desc",
+      summaryEng: "Desc EN",
+      summaryPdf: "Resumen PDF",
+      summaryPdfEng: "Summary PDF",
+      descriptionItemsPdf: ["Item 1"],
+      descriptionItemsPdfEng: ["Item 1 EN"],
       skillSonIds: [1],
     });
     await waitFor(() =>
@@ -105,8 +121,8 @@ describe("useExperienceForm", () => {
         yearStart,
         yearEnd,
         company: "Company",
-        description: "Desc",
-        descriptionEng: "Desc EN",
+        summary: "Desc",
+        summaryEng: "Desc EN",
         skillSonIds: [1],
       });
     });
@@ -115,8 +131,16 @@ describe("useExperienceForm", () => {
       yearStart: yearStart.format(BASIC_DATA_DATE_FORMAT),
       yearEnd: yearEnd.format(BASIC_DATA_DATE_FORMAT),
       company: "Company",
-      description: "Desc",
-      descriptionEng: "Desc EN",
+      position: "",
+      positionEng: "",
+      location: "",
+      locationEng: "",
+      summary: "Desc",
+      summaryEng: "Desc EN",
+      summaryPdf: "",
+      summaryPdfEng: "",
+      descriptionItemsPdf: [],
+      descriptionItemsPdfEng: [],
       skillSonIds: [1],
     });
     expect(success).toBe(true);
@@ -134,8 +158,8 @@ describe("useExperienceForm", () => {
       yearStart: undefined,
       yearEnd: undefined,
       company: "Company",
-      description: "Desc",
-      descriptionEng: "Desc EN",
+      summary: "Desc",
+      summaryEng: "Desc EN",
       skillSonIds: [],
     });
 
@@ -160,8 +184,8 @@ describe("useExperienceForm", () => {
         yearStart,
         yearEnd: undefined,
         company: "Company",
-        description: "Desc",
-        descriptionEng: "Desc EN",
+        summary: "Desc",
+        summaryEng: "Desc EN",
         skillSonIds: [],
       });
     });
@@ -183,8 +207,8 @@ describe("useExperienceForm", () => {
       yearStart: undefined,
       yearEnd: undefined,
       company: "Company",
-      description: "Desc",
-      descriptionEng: "Desc EN",
+      summary: "Desc",
+      summaryEng: "Desc EN",
       skillSonIds: [],
     });
 
@@ -209,8 +233,8 @@ describe("useExperienceForm", () => {
       yearStart: undefined,
       yearEnd: undefined,
       company: "Company",
-      description: "Desc",
-      descriptionEng: "Desc EN",
+      summary: "Desc",
+      summaryEng: "Desc EN",
       skillSonIds: [],
     });
 

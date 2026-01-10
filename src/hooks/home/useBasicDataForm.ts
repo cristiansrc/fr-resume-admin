@@ -49,9 +49,17 @@ export interface BasicDataFormValues {
   github?: string;
   description: string;
   descriptionEng: string;
+  wrapper?: string[];
+  wrapperEng?: string[];
+  descriptionPdf?: string[];
+  descriptionPdfEng?: string[];
 }
 
 export const getFieldValue = (value?: string) => value?.trim() ?? "";
+export const getStringArrayValue = (value?: string[]) =>
+  Array.isArray(value)
+    ? value.map((item) => item.trim()).filter((item) => item.length > 0)
+    : [];
 
 export const buildBasicDataPayload = (
   values: BasicDataFormValues,
@@ -86,6 +94,10 @@ export const buildBasicDataPayload = (
   ),
   description: getFieldValue(values.description),
   descriptionEng: getFieldValue(values.descriptionEng),
+  wrapper: getStringArrayValue(values.wrapper),
+  wrapperEng: getStringArrayValue(values.wrapperEng),
+  descriptionPdf: getStringArrayValue(values.descriptionPdf),
+  descriptionPdfEng: getStringArrayValue(values.descriptionPdfEng),
 });
 
 export const isDateOutOfSelectableRange = (current?: Dayjs) => {
@@ -179,6 +191,10 @@ export const useBasicDataForm = () => {
         github: data.github,
         description: data.description,
         descriptionEng: data.descriptionEng,
+        wrapper: Array.isArray(data.wrapper) ? data.wrapper : [],
+        wrapperEng: Array.isArray(data.wrapperEng) ? data.wrapperEng : [],
+        descriptionPdf: Array.isArray(data.descriptionPdf) ? data.descriptionPdf : [],
+        descriptionPdfEng: Array.isArray(data.descriptionPdfEng) ? data.descriptionPdfEng : [],
       });
     } catch (error) {
       handleError(error, "No se pudieron cargar los datos básicos");

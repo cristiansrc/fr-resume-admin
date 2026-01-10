@@ -11,7 +11,12 @@ import {
   Typography,
 } from "antd";
 import { useCallback, useMemo, useState } from "react";
-import { LoadingBlock, SectionHeader, SkillSonSelector } from "../../components";
+import {
+  LoadingBlock,
+  RichTextEditor,
+  SectionHeader,
+  SkillSonSelector,
+} from "../../components";
 import type { ExperienceResponse, SkillSonResponse } from "../../api";
 import { BASIC_DATA_DATE_FORMAT } from "../../config/basic-data-config";
 import {
@@ -56,6 +61,12 @@ const ExperienceForm = ({
     experienceId,
     onSuccess: onSaved,
   });
+  const [descriptionItemsPdfInput, setDescriptionItemsPdfInput] = useState("");
+  const [descriptionItemsPdfEngInput, setDescriptionItemsPdfEngInput] = useState("");
+  const descriptionItemsPdfValues =
+    Form.useWatch("descriptionItemsPdf", form) ?? [];
+  const descriptionItemsPdfEngValues =
+    Form.useWatch("descriptionItemsPdfEng", form) ?? [];
 
   const handleFinish = useCallback(
     async (values: ExperienceFormValues) => {
@@ -67,6 +78,51 @@ const ExperienceForm = ({
     [handleSubmit, onBack],
   );
 
+  const handleAddDescriptionItemsPdf = useCallback(() => {
+    const value = descriptionItemsPdfInput.trim();
+    if (!value) {
+      return;
+    }
+    const current =
+      (form.getFieldValue("descriptionItemsPdf") as string[] | undefined) ?? [];
+    form.setFieldsValue({ descriptionItemsPdf: [...current, value] });
+    setDescriptionItemsPdfInput("");
+  }, [descriptionItemsPdfInput, form]);
+
+  const handleAddDescriptionItemsPdfEng = useCallback(() => {
+    const value = descriptionItemsPdfEngInput.trim();
+    if (!value) {
+      return;
+    }
+    const current =
+      (form.getFieldValue("descriptionItemsPdfEng") as string[] | undefined) ?? [];
+    form.setFieldsValue({ descriptionItemsPdfEng: [...current, value] });
+    setDescriptionItemsPdfEngInput("");
+  }, [descriptionItemsPdfEngInput, form]);
+
+  const handleRemoveDescriptionItemsPdfAt = useCallback(
+    (indexToRemove: number) => {
+      const current =
+        (form.getFieldValue("descriptionItemsPdf") as string[] | undefined) ?? [];
+      form.setFieldsValue({
+        descriptionItemsPdf: current.filter((_, index) => index !== indexToRemove),
+      });
+    },
+    [form],
+  );
+
+  const handleRemoveDescriptionItemsPdfEngAt = useCallback(
+    (indexToRemove: number) => {
+      const current =
+        (form.getFieldValue("descriptionItemsPdfEng") as string[] | undefined) ??
+        [];
+      form.setFieldsValue({
+        descriptionItemsPdfEng: current.filter((_, index) => index !== indexToRemove),
+      });
+    },
+    [form],
+  );
+
   const skillSonTags = useMemo(() => {
     if (!selectedSkillSons.length) {
       return <Text type="secondary">Sin habilidades hijas seleccionadas</Text>;
@@ -75,6 +131,42 @@ const ExperienceForm = ({
       <Tag key={skillSon.id}>{skillSon.name}</Tag>
     ));
   }, [selectedSkillSons]);
+
+  const descriptionItemsPdfTags = useMemo(() => {
+    if (!descriptionItemsPdfValues.length) {
+      return <Text type="secondary">Sin descripciones pdf</Text>;
+    }
+    return descriptionItemsPdfValues.map((item: string, index: number) => (
+      <Tag
+        key={`${item}-${index}`}
+        closable
+        onClose={(event) => {
+          event.preventDefault();
+          handleRemoveDescriptionItemsPdfAt(index);
+        }}
+      >
+        {item}
+      </Tag>
+    ));
+  }, [descriptionItemsPdfValues, handleRemoveDescriptionItemsPdfAt, Text]);
+
+  const descriptionItemsPdfEngTags = useMemo(() => {
+    if (!descriptionItemsPdfEngValues.length) {
+      return <Text type="secondary">Sin descripciones pdf</Text>;
+    }
+    return descriptionItemsPdfEngValues.map((item: string, index: number) => (
+      <Tag
+        key={`${item}-${index}`}
+        closable
+        onClose={(event) => {
+          event.preventDefault();
+          handleRemoveDescriptionItemsPdfEngAt(index);
+        }}
+      >
+        {item}
+      </Tag>
+    ));
+  }, [descriptionItemsPdfEngValues, handleRemoveDescriptionItemsPdfEngAt, Text]);
 
   return (
     <div className="experience-panel">
@@ -148,24 +240,142 @@ const ExperienceForm = ({
           <Row gutter={16}>
             <Col xs={24} sm={12}>
               <Form.Item
-                name="description"
-                label="Descripción"
-                rules={[
-                  { required: true, message: "Ingresa la descripción" },
-                ]}
+                name="position"
+                label="Posición"
               >
-                <Input.TextArea rows={4} placeholder="Descripción" />
+                <Input placeholder="Posición" />
               </Form.Item>
             </Col>
             <Col xs={24} sm={12}>
               <Form.Item
-                name="descriptionEng"
-                label="Descripción (inglés)"
+                name="positionEng"
+                label="Posición (inglés)"
+              >
+                <Input placeholder="Position in English" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name="location"
+                label="Ubicación"
+              >
+                <Input placeholder="Ubicación" />
+              </Form.Item>
+            </Col>
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name="locationEng"
+                label="Ubicación (inglés)"
+              >
+                <Input placeholder="Location in English" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name="summary"
+                label="Resumen"
                 rules={[
-                  { required: true, message: "Ingresa la descripción en inglés" },
+                  { required: true, message: "Ingresa el resumen" },
                 ]}
               >
-                <Input.TextArea rows={4} placeholder="Description in English" />
+                <RichTextEditor placeholder="Resumen" />
+              </Form.Item>
+            </Col>
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name="summaryEng"
+                label="Resumen (inglés)"
+                rules={[
+                  { required: true, message: "Ingresa el resumen en inglés" },
+                ]}
+              >
+                <RichTextEditor placeholder="Summary in English" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col xs={24} sm={12}>
+              <Form.Item name="summaryPdf" label="Resumen pdf">
+                <Input.TextArea placeholder="Resumen pdf" rows={4} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} sm={12}>
+              <Form.Item name="summaryPdfEng" label="Resumen pdf (inglés)">
+                <Input.TextArea placeholder="Summary pdf in English" rows={4} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col xs={24}>
+              <Form.Item label="Descripción pdf">
+                <Form.Item name="descriptionItemsPdf" noStyle>
+                  <Input type="hidden" />
+                </Form.Item>
+                <div className="basic-data-recognition-selection">
+                  <div className="basic-data-recognition-controls">
+                    <Input
+                      placeholder="Agregar descripción pdf"
+                      value={descriptionItemsPdfInput}
+                      onChange={(event) =>
+                        setDescriptionItemsPdfInput(event.target.value)
+                      }
+                      onPressEnter={(event) => {
+                        event.preventDefault();
+                        handleAddDescriptionItemsPdf();
+                      }}
+                    />
+                    <Button
+                      type="default"
+                      htmlType="button"
+                      onClick={handleAddDescriptionItemsPdf}
+                      disabled={!descriptionItemsPdfInput.trim()}
+                    >
+                      Agregar descripción pdf
+                    </Button>
+                  </div>
+                  <div className="basic-data-recognition-list">
+                    {descriptionItemsPdfTags}
+                  </div>
+                </div>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col xs={24}>
+              <Form.Item label="Descripción pdf (inglés)">
+                <Form.Item name="descriptionItemsPdfEng" noStyle>
+                  <Input type="hidden" />
+                </Form.Item>
+                <div className="basic-data-recognition-selection">
+                  <div className="basic-data-recognition-controls">
+                    <Input
+                      placeholder="Agregar descripción pdf en inglés"
+                      value={descriptionItemsPdfEngInput}
+                      onChange={(event) =>
+                        setDescriptionItemsPdfEngInput(event.target.value)
+                      }
+                      onPressEnter={(event) => {
+                        event.preventDefault();
+                        handleAddDescriptionItemsPdfEng();
+                      }}
+                    />
+                    <Button
+                      type="default"
+                      htmlType="button"
+                      onClick={handleAddDescriptionItemsPdfEng}
+                      disabled={!descriptionItemsPdfEngInput.trim()}
+                    >
+                      Agregar descripción pdf
+                    </Button>
+                  </div>
+                  <div className="basic-data-recognition-list">
+                    {descriptionItemsPdfEngTags}
+                  </div>
+                </div>
               </Form.Item>
             </Col>
           </Row>

@@ -138,6 +138,10 @@ describe("basic data helpers", () => {
       github: undefined,
       description: " Descripción ",
       descriptionEng: " Description ",
+      wrapper: [" Reconocimiento 1 ", "  ", "Reconocimiento 2"],
+      wrapperEng: [" Recognition 1 ", "", "Recognition 2"],
+      descriptionPdf: [" PDF 1 ", "  ", "PDF 2"],
+      descriptionPdfEng: [" PDF Eng 1 ", "", "PDF Eng 2"],
     };
 
     const payload = buildBasicDataPayload(values);
@@ -147,6 +151,10 @@ describe("basic data helpers", () => {
     expect(payload.startWorkingDate).toBe("");
     expect(payload.instagram).toBe("https://instagram.com/usuario");
     expect(payload.linkedin).toBe("");
+    expect(payload.wrapper).toEqual(["Reconocimiento 1", "Reconocimiento 2"]);
+    expect(payload.wrapperEng).toEqual(["Recognition 1", "Recognition 2"]);
+    expect(payload.descriptionPdf).toEqual(["PDF 1", "PDF 2"]);
+    expect(payload.descriptionPdfEng).toEqual(["PDF Eng 1", "PDF Eng 2"]);
   });
 
   it("uses the loader helper to skip duplicate load attempts", () => {

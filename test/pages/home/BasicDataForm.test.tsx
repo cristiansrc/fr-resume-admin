@@ -38,6 +38,10 @@ const basicDataMock = {
   github: "https://github.com/test",
   description: "Descripción",
   descriptionEng: "Description",
+  wrapper: ["Reconocimiento 1", "Reconocimiento 2"],
+  wrapperEng: ["Recognition 1", "Recognition 2"],
+  descriptionPdf: ["Descripción PDF 1", "Descripción PDF 2"],
+  descriptionPdfEng: ["PDF Description 1", "PDF Description 2"],
 };
 
 describe("BasicDataForm", () => {

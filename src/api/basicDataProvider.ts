@@ -11,7 +11,14 @@ export type { BasicDataPayload, BasicDataResponse };
 const BASIC_DATA_ENDPOINT = `/${BASIC_DATA_RESOURCE}/${BASIC_DATA_RECORD_ID}`;
 
 export const getBasicData = async (): Promise<BasicDataResponse> => {
-  const { data } = await axiosClient.get<BasicDataResponse>(BASIC_DATA_ENDPOINT);
+  const { data } = await axiosClient.get<BasicDataResponse>(
+    BASIC_DATA_ENDPOINT,
+    {
+      headers: {
+        "x-skip-error-redirect": "true",
+      },
+    },
+  );
   return data;
 };
 
@@ -28,6 +35,11 @@ export const updateBasicData = async (
   const response = await axiosClient.put<BasicDataResponse>(
     BASIC_DATA_ENDPOINT,
     payload,
+    {
+      headers: {
+        "x-skip-error-redirect": "true",
+      },
+    },
   );
   return {
     data: response.data,

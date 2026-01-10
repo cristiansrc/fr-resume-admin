@@ -1,8 +1,16 @@
 export interface ExperiencePayload {
   yearStart: string;
-  yearEnd: string;
   company: string;
-  description: string;
-  descriptionEng: string;
+  yearEnd: string;
+  position: string;
+  positionEng: string;
+  location: string;
+  locationEng: string;
+  summary: string;
+  summaryEng: string;
+  summaryPdf: string;
+  summaryPdfEng: string;
+  descriptionItemsPdf: string[];
+  descriptionItemsPdfEng: string[];
   skillSonIds: number[];
 }

@@ -103,6 +103,30 @@
   margin-top: 1.25rem;
 }
 
+.basic-data-recognition-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.basic-data-recognition-controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.basic-data-recognition-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.basic-data-recognition-list .ant-tag {
+  max-width: 100%;
+  white-space: normal;
+  word-break: break-word;
+}
+
 .label-panel {
   width: 100%;
   position: relative;
@@ -480,6 +504,63 @@
 }
 
 .experience-skill-son-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.education-panel {
+  width: 100%;
+  position: relative;
+}
+
+.education-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.education-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.education-busy-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  pointer-events: all;
+  z-index: 10;
+}
+
+.education-form {
+  width: 100%;
+}
+
+.education-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.education-highlight-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.education-highlight-controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.education-highlight-list {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
